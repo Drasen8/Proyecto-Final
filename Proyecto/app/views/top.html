@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            display: flex;
+            justify-content: space-between; /* Mantenemos esto para la estructura general */
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+        }
+        .header-content {
+            display: flex;
+            justify-content: flex-start; /* Alinea todo a la izquierda */
+            align-items: center;
+            width: 100%; /* Ocupa todo el ancho disponible */
+            gap: 20px; /* Espacio entre elementos */
+        }
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            white-space: nowrap; /* Evita que el logo se divida en varias líneas */
+        }
+        .nav-bar {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1em;
+            white-space: nowrap; /* Evita que los textos se dividan */
+        }
+        .user-section {
+            display: flex; /* Cambiado a flex para mejor alineación */
+            align-items: center;
+            gap: 10px;
+            margin-left: auto; /* Empuja la sección de usuario a la derecha */
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            color: black;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        .dropdown a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: black;
+            font-size: 0.9em;
+        }
+        .dropdown a:hover {
+            background-color: #f0f0f0;
+        }
+        .user-section:hover .dropdown {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">MiLogo</div>
+            <nav class="nav-bar">
+                <a href="#">Inicio</a>
+                <a href="#">Usuario</a>
+                <a href="#">Inicio de Sesión</a>
+            </nav>
+            <div class="user-section">
+                <div class="user-info">
+                    <img src="ruta-a-la-imagen-del-usuario" alt="Usuario">
+                    <span>Nombre del Usuario</span>
+                </div>
+                <div class="dropdown">
+                    <a href="#">Información de la cuenta</a>
+                    <a href="#">Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bottom Section</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .bottom-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-top: 2px solid #ccc;
+            z-index: 1000;
+        }
+        .left-section {
+            display: flex;
+            flex-direction: column;
+        }
+        .left-section a {
+            text-decoration: none;
+            color: #333;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .left-section a:hover {
+            color: #007BFF;
+        }
+        .right-section {
+            text-align: center;
+        }
+        .logo {
+            margin-bottom: 10px;
+        }
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .social-icons img {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="bottom-container">
+        <div class="left-section">
+            <a href="#contact">Contacto</a>
+            <a href="#about-us">Sobre Nosotros</a>
+            <a href="#privacy-policy">Política de Privacidad</a>
+            <a href="#terms">Términos y Condiciones</a>
+        </div>
+        <div class="right-section">
+            <div class="logo">
+                <img src="logo.png" alt="Logo" width="100">
+            </div>
+            <div class="social-icons">
+                <a href="https://facebook.com" target="_blank">
+                    <img src="facebook-icon.png" alt="Facebook">
+                </a>
+                <a href="https://twitter.com" target="_blank">
+                    <img src="twitter-icon.png" alt="Twitter">
+                </a>
+                <a href="https://instagram.com" target="_blank">
+                    <img src="instagram-icon.png" alt="Instagram">
+                </a>
+                <a href="https://linkedin.com" target="_blank">
+                    <img src="linkedin-icon.png" alt="LinkedIn">
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

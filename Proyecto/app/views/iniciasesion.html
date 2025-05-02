@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    
+    <!-- Contenedor para el header -->
+    <div id="header-container"></div>
+
+    <!-- Script corregido -->
+    <script>
+        fetch('/top.html')  // ¡Atención a la barra inicial!
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById('header-container').innerHTML = html;
+                // Ejecutar scripts del header si existen
+                const headerScripts = document.getElementById('header-container').getElementsByTagName('script');
+                Array.from(headerScripts).forEach(script => {
+                    const newScript = document.createElement('script');
+                    newScript.text = script.innerHTML;
+                    document.body.appendChild(newScript).parentNode.removeChild(newScript);
+                });
+            })
+            .catch(error => console.error('Error loading header:', error));
+    </script>
+    
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <div id="error"></div>
+                <label for="nombre">User:</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu user" required>
+            </div>
+            <div class="form-group">
+                <label for="contraseña">Contraseña:</label>
+                <input type="password" id="contraseña" name="contraseña" placeholder="Ingresa tu contraseña" required>
+            </div>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+        <p>¿No tienes una cuenta? <a href="registro.html">Regístrate aquí</a></p>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === 'true') {
+            const selectTipo = document.getElementById('error');
+            selectTipo.innerHTML = `<p style="color: red;">Nombre o contraseña incorrectos</p>`;
+        }
+      </script>
+      
+    <!-- Contenedor para el header -->
+    <div id="bottom-container"></div>
+
+    <!-- Script corregido -->
+    <script>
+        fetch('/bottom.html')  // ¡Atención a la barra inicial!
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById('bottom-container').innerHTML = html;
+                // Ejecutar scripts del header si existen
+                const headerScripts = document.getElementById('bottom-container').getElementsByTagName('script');
+                Array.from(headerScripts).forEach(script => {
+                    const newScript = document.createElement('script');
+                    newScript.text = script.innerHTML;
+                    document.body.appendChild(newScript).parentNode.removeChild(newScript);
+                });
+            })
+            .catch(error => console.error('Error loading bottom:', error));
+    </script>
+</body>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        
+    }
+
+    /* Añade esto para el header */
+    #header-container {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        
+    }
+
+    .login-container {
+        
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        margin: 80px auto 20px; /* Añade margen superior para el header */
+    }
+    h2 {
+        margin-bottom: 20px;
+        color: #333333;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555555;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    p {
+        margin-top: 15px;
+        color: #555555;
+    }
+
+    a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+</style>
+</html>

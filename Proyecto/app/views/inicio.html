@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- Contenedor para el header -->
+  <div id="header-container"></div>
+
+<div class="app-body">
+    <!-- Barra lateral izquierda (con contenido rotado) -->
+    <div class="sidebar-left">
+        <div class="expedientes-container">
+          <!-- Cada coche/expediente es un div -->
+          <div class="expediente" onclick="seleccionarExpediente(1)">Expediente 1</div>
+          <div class="expediente" onclick="seleccionarExpediente(2)">Expediente 2</div>
+          <div class="expediente" onclick="seleccionarExpediente(3)">Expediente 3</div>
+          <!-- Aquí se pueden añadir más con JS -->
+        </div>
+      </div>
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <div id="uno" hidden></div>
+      <div id="dos" hidden></div>
+      <div id="tres" hidden></div>
+      <div id="cuatro" hidden></div>
+      <div id="cinco" hidden></div>
+    </div>
+  
+    <!-- Barra lateral derecha con círculos -->
+    <div class="sidebar-right">
+      <div class="step active"> Recepción de la declaración </div>
+      <div class="step"> Aclaración de sucesos</div>
+      <div class="step"> Valoración</div>
+      <div class="step"> Comprovación siniestro</div>
+      <div class="step"> Peritaje</div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        fetch('/mis-expedientes')
+          .then(res => {
+            if (!res.ok) throw new Error('No se pudo cargar los expedientes');
+            return res.json();
+          })
+          .then(data => {
+            const contenedor = document.querySelector('.expedientes-container');
+            contenedor.innerHTML = ''; // Vaciar lo que había
+    
+            data.forEach((expediente, index) => {
+              const div = document.createElement('div');
+              div.className = 'expediente';
+              div.textContent = expediente.id_expediente; 
+              div.onclick = () => seleccionarExpediente(index + 1); // O usa expediente.id_expediente
+              contenedor.appendChild(div);
+            });
+          })
+          .catch(err => console.error('Error al cargar expedientes:', err));
+      });
+    </script>
+
+    <script>
+      // Aquí adquirimos el tipo de usuario para determinar sus permisos de modificación y estado de la solicitud
+      //switch (tipo){
+
+      //}
+      estado = 'uno'; // Aquí se asigna el estado de la solicitud, que puede ser 'uno', 'dos', 'tres', 'cuatro' o 'cinco'
+      switch (estado){
+        case 'uno':
+          document.getElementById('uno').removeAttribute('hidden');
+          break;
+        case 'dos':
+          document.getElementById('dos').removeAttribute('hidden');
+          break;
+        case 'tres':
+          document.getElementById('tres').removeAttribute('hidden');
+          break;
+        case 'cuatro':
+          document.getElementById('cuatro').removeAttribute('hidden');
+          break;
+        case 'cinco':
+          document.getElementById('cinco').removeAttribute('hidden');
+          break;
+      }
+    </script>
+
+    <script>
+  function seleccionarExpediente(id) {
+    document.querySelectorAll('.expediente').forEach(div => {
+      div.classList.remove('activo');
+    });
+    const seleccionado = document.querySelector(`.expediente:nth-child(${id})`);
+    if (seleccionado) {
+      seleccionado.classList.add('activo');
+    }
+    // Aquí podrías cargar los datos del expediente con AJAX o fetch
+    console.log("Seleccionaste expediente ID:", id);
+  }
+</script>
+
+  </div>
+  
+
+
+
+
+  <!-- Script corregido -->
+  <script>
+      fetch('/top.html')  // ¡Atención a la barra inicial!
+          .then(response => {
+              if (!response.ok) throw new Error('Network response was not ok');
+              return response.text();
+          })
+          .then(html => {
+              document.getElementById('header-container').innerHTML = html;
+              // Ejecutar scripts del header si existen
+              const headerScripts = document.getElementById('header-container').getElementsByTagName('script');
+              Array.from(headerScripts).forEach(script => {
+                  const newScript = document.createElement('script');
+                  newScript.text = script.innerHTML;
+                  document.body.appendChild(newScript).parentNode.removeChild(newScript);
+              });
+          })
+          .catch(error => console.error('Error loading header:', error));
+  </script>
+     <!-- Contenedor para el header -->
+     <div id="bottom-container"></div>
+
+     <!-- Script corregido -->
+     
+     <script>
+         fetch('/bottom.html')  // ¡Atención a la barra inicial!
+             .then(response => {
+                 if (!response.ok) throw new Error('Network response was not ok');
+                 return response.text();
+             })
+             .then(html => {
+                 document.getElementById('bottom-container').innerHTML = html;
+                 // Ejecutar scripts del header si existen
+                 const headerScripts = document.getElementById('bottom-container').getElementsByTagName('script');
+                 Array.from(headerScripts).forEach(script => {
+                     const newScript = document.createElement('script');
+                     newScript.text = script.innerHTML;
+                     document.body.appendChild(newScript).parentNode.removeChild(newScript);
+                 });
+             })
+             .catch(error => console.error('Error loading bottom:', error));
+     </script>
+  <style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  #header-container {
+    height: 80px; /* Ajusta según el alto real de top.html */
+  }
+
+  #bottom-container {
+    height: 80px; /* Ajusta según el alto real de bottom.html */
+  }
+
+  .app-body {
+    display: flex;
+    height: calc(100% - 160px); /* Resta altura del header y footer */
+  }
+
+  .sidebar-left {
+    width: 200px;
+    background-color: #f5f5f5;
+    border-right: 1px solid #ccc;
+    padding: 10px;
+    overflow-y: auto;
+  }
+
+  .expedientes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .expediente {
+    background-color: #e0e0e0;
+    padding: 10px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s;
+  }
+
+  .expediente:hover {
+    background-color: #d0d0d0;
+  }
+
+  .expediente.activo {
+    background-color: #a3d977;
+    font-weight: bold;
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+  }
+
+  .sidebar-right {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .step {
+    display: flex;
+    width: 90px;
+    height: 90px;
+    border: 2px solid black;
+    border-radius: 50%;
+    background-color: white;
+    justify-content: center; 
+  align-items: center;
+  }
+
+  .step.active {
+    background-color: #b4f439;
+    border: 4px double black;
+  }
+</style>
+
+</body>
+</html>

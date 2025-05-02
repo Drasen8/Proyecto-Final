@@ -1,0 +1,60 @@
+const express = require('express');
+const path = require('path');
+const app = express();
+const port = process.env.PORT || 3000;
+const cors = require('cors');
+
+// Configuración CORS (usa solo una de estas opciones)
+app.use(cors({
+  origin: `http://localhost:${port}`,
+  methods: ['GET', 'POST', 'PUT'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Configuración del motor de vistas
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Archivos estáticos (CSS, JS, imágenes)
+app.use(express.static(path.join(__dirname, 'views')));
+
+const session = require('express-session');
+app.set('trust proxy', 1); // Habilitar si estás detrás de un proxy (como Heroku)
+
+app.use(session({
+  secret: 'tu_clave_secreta', // pon una clave más segura en producción
+  resave: false,
+  saveUninitialized: true,
+  cookie: {  maxAge: 1000 * 60 * 60 * 24  } // Usa true si estás en HTTPS
+}));
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'iniciasesion.html'));
+});
+
+app.get('/singUp', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'registro.html'));
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'inicio.html'));
+});
+
+const expedienteRoutes = require('./routes/expedientes'); 
+app.use('/mis-expedientes', expedienteRoutes);
+
+
+const authRoutes = require(path.join(__dirname, './routes/auth'));
+app.use('/', authRoutes);
+
+
+
+
+// Iniciar servidor
+app.listen(port, () => {
+  console.log(`Servidor en http://localhost:${port}`);
+});
