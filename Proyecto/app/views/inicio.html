@@ -13,29 +13,48 @@
     <!-- Barra lateral izquierda (con contenido rotado) -->
     <div class="sidebar-left">
         <div class="expedientes-container">
-          <!-- Cada coche/expediente es un div -->
-          <div class="expediente" onclick="seleccionarExpediente(1)">Expediente 1</div>
-          <div class="expediente" onclick="seleccionarExpediente(2)">Expediente 2</div>
-          <div class="expediente" onclick="seleccionarExpediente(3)">Expediente 3</div>
-          <!-- Aquí se pueden añadir más con JS -->
+          <div class="expediente nuevo" id="crear-expediente">+ Crear nuevo expediente</div>
         </div>
       </div>
     <!-- Contenido principal -->
     <div class="main-content">
-      <div id="uno" hidden></div>
-      <div id="dos" hidden></div>
-      <div id="tres" hidden></div>
-      <div id="cuatro" hidden></div>
-      <div id="cinco" hidden></div>
+      <h1>Informacion sobre el expediente:</h1>
+      <p id="info"></p>
+      <p>Estado:</p>
+      <div id="uno" hidden>
+        
+      </div>
+      <div id="dos" hidden>
+
+      </div>
+      <div id="tres" hidden>
+
+      </div>
+      <div id="cuatro" hidden>
+
+      </div>
+      <div id="cinco" hidden>
+
+      </div>
+      <div id="seis" hidden>
+        <h1>Resolución de la tramitación</h1>
+        <select name="tipo" id="tipo">
+          <option value="" selected disabled>Selecciona un tipo de usuario</option>
+          <option value="ayuntamiento">Ayuntamiento</option>
+          <option value="aseguradora">Aseguradora</option>
+          <option value="perito">Perito</option>
+      </select>
+      </div>
     </div>
   
     <!-- Barra lateral derecha con círculos -->
     <div class="sidebar-right">
-      <div class="step active"> Recepción de la declaración </div>
-      <div class="step"> Aclaración de sucesos</div>
-      <div class="step"> Valoración</div>
-      <div class="step"> Comprovación siniestro</div>
-      <div class="step"> Peritaje</div>
+      <div class="step" id="circuloUno"> Recepción de la declaración </div>
+      <div class="step" id="circuloDos"> Aclaración de sucesos</div>
+      <div class="step" id="circuloTres"> Valoración</div>
+      <div class="step" id="circuloCuatro"> Comprovación siniestro</div>
+      <div class="step" id="circuloCinco"> Peritaje</div>
+      <div class="step" id="circuloSeis"> Resoucion de la tramitacion</div>
     </div>
 
     <script>
@@ -47,18 +66,64 @@
           })
           .then(data => {
             const contenedor = document.querySelector('.expedientes-container');
-            contenedor.innerHTML = ''; // Vaciar lo que había
     
-            data.forEach((expediente, index) => {
+            data.forEach((expediente) => {
               const div = document.createElement('div');
               div.className = 'expediente';
-              div.textContent = expediente.id_expediente; 
-              div.onclick = () => seleccionarExpediente(index + 1); // O usa expediente.id_expediente
-              contenedor.appendChild(div);
+              div.textContent = expediente.id_expediente;
+
+              div.addEventListener('click', () => {
+                // 1) Quitamos la clase activo de todos
+                document.querySelectorAll('.expediente').forEach(el => {
+                  el.classList.remove('activo');
+                });
+
+                // 2) Guardamos el id del expediente en una cookie
+                document.cookie = `id_expediente=${expediente.id_expediente}; path=/; max-age=${60*60}`;
+
+                // 2) La añadimos **solo** al div clicado
+                div.classList.add('activo');
+
+                // 3) Rellenamos la info...
+                info.innerHTML = `ID: ${expediente.id_expediente}<br>
+                  Descripción: ${expediente.descripcion}<br>
+                  Matrícula: ${expediente.matricula}<br>
+                  DNI cliente: ${expediente.dni_cliente}<br>
+                  Fecha creación: ${expediente.fecha_creacion}<br>`;
+
+                  getEstado();
             });
+
+            const btnCrear = document.getElementById('crear-expediente');
+              btnCrear.addEventListener('click', () => {
+                fetch('/mis-expedientes', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => {
+                  if (!res.ok) throw new Error('Error creando expediente');
+                  return res.json();
+                })
+                .then(nuevo => {
+                  // Añade el nuevo div al principio de la lista
+                  const div = document.createElement('div');
+                  div.className = 'expediente';
+                  div.textContent = nuevo.id_expediente;
+                  div.addEventListener('click', () => seleccionarExpediente(nuevo));
+                  contenedor.prepend(div);
+
+                  // Opcional: seleccionarlo automáticamente
+                  seleccionarExpediente(nuevo);
+                })
+                .catch(console.error);
+              });
+
+  contenedor.appendChild(div);
+});
           })
           .catch(err => console.error('Error al cargar expedientes:', err));
       });
+      
     </script>
 
     <script>
@@ -66,38 +131,48 @@
       //switch (tipo){
 
       //}
-      estado = 'uno'; // Aquí se asigna el estado de la solicitud, que puede ser 'uno', 'dos', 'tres', 'cuatro' o 'cinco'
-      switch (estado){
-        case 'uno':
+function getEstado() {
+      fetch('/estado-expediente')
+  .then(res => {
+    if (!res.ok) throw new Error('No hay estado');
+    return res.json();
+  })
+  .then(estado => {
+
+      console.log(estado.nombre_estado);
+      switch (estado.nombre_estado){
+        case 'Recepción de la declaración':
           document.getElementById('uno').removeAttribute('hidden');
+          document.getElementById('circuloUno').classList.add('active');
           break;
-        case 'dos':
+        case 'Aclaración de sucesos':
           document.getElementById('dos').removeAttribute('hidden');
+          document.getElementById('circuloDos').classList.add('active');
           break;
-        case 'tres':
+        case 'Valoración':
           document.getElementById('tres').removeAttribute('hidden');
+          document.getElementById('circuloTres').classList.add('active');
           break;
-        case 'cuatro':
+        case 'Comprovación siniestro':
           document.getElementById('cuatro').removeAttribute('hidden');
+          document.getElementById('circuloCuatro').classList.add('active');
           break;
-        case 'cinco':
+        case 'Peritaje':
           document.getElementById('cinco').removeAttribute('hidden');
+          document.getElementById('circuloCinco').classList.add('active');
+          break;
+        case 'Resoución de la tramitación':
+          document.getElementById('seis').removeAttribute('hidden');
+          document.getElementById('circuloSeis').classList.add('active');
           break;
       }
+  })
+  .catch(err => console.error(err));
+};
     </script>
 
     <script>
-  function seleccionarExpediente(id) {
-    document.querySelectorAll('.expediente').forEach(div => {
-      div.classList.remove('activo');
-    });
-    const seleccionado = document.querySelector(`.expediente:nth-child(${id})`);
-    if (seleccionado) {
-      seleccionado.classList.add('activo');
-    }
-    // Aquí podrías cargar los datos del expediente con AJAX o fetch
-    console.log("Seleccionaste expediente ID:", id);
-  }
+  
 </script>
 
   </div>
@@ -211,18 +286,19 @@
   }
 
   .sidebar-right {
+    top:0%;
     width: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
   }
 
   .step {
     display: flex;
-    width: 90px;
-    height: 90px;
+    width: 85px;
+    height: 85px;
     border: 2px solid black;
     border-radius: 50%;
     background-color: white;

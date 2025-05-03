@@ -1,4 +1,5 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,6 +11,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+
+app.use(cookieParser());
 
 // Configuración del motor de vistas
 app.set('view engine', 'ejs');
@@ -47,6 +51,8 @@ app.get('/', (req, res) => {
 const expedienteRoutes = require('./routes/expedientes'); 
 app.use('/mis-expedientes', expedienteRoutes);
 
+const estadoRoutes = require('./routes/estado'); 
+app.use('/estado-expediente', estadoRoutes);
 
 const authRoutes = require(path.join(__dirname, './routes/auth'));
 app.use('/', authRoutes);
