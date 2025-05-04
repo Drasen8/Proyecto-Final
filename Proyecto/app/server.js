@@ -51,13 +51,19 @@ app.get('/', (req, res) => {
 const expedienteRoutes = require('./routes/expedientes'); 
 app.use('/mis-expedientes', expedienteRoutes);
 
+
 const estadoRoutes = require('./routes/estado'); 
 app.use('/estado-expediente', estadoRoutes);
 
+app.get('/api/session', (req, res) => {
+  res.json({ user: req.session.user || null });
+});
+
+const consultaRoutes = require('./routes/consultas');
+app.use('/consulta-expediente', consultaRoutes);
+
 const authRoutes = require(path.join(__dirname, './routes/auth'));
 app.use('/', authRoutes);
-
-
 
 
 // Iniciar servidor

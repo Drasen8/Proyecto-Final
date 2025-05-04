@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const expedienteController = require('../controllers/expedienteController');
+const expedienteCtrl = require('../controllers/expedienteController');
 
-// GET /mis-expedientes
-router.get('/', expedienteController.getExpedientesUsuario);
+// GET  /mis-expedientes  → listar
+router.get('/', expedienteCtrl.getExpedientesUsuario);
+
+// POST /mis-expedientes  → crear nuevo expediente
+router.post('/', expedienteCtrl.createExpediente);
 
 module.exports = router;

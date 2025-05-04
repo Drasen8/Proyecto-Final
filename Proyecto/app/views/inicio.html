@@ -9,6 +9,29 @@
     <!-- Contenedor para el header -->
   <div id="header-container"></div>
 
+  <div class="consultor-container" id="consultor-container">
+    <h2>Consulta de expedientes</h2>
+    <form id="formConsulta">
+        <div class="form-group">
+            <div id="error"></div>
+            <label for="numExpediente">Numero de expediente:</label>
+            <input type="text" id="numExpediente" name="numExpediente" placeholder="Ingresa tu Mumero de Expediente" required>
+        </div>
+        <div class="form-group">
+            <label for="dni">DNI:</label>
+            <input type="text" id="dni" name="dni" placeholder="Ingresa tu DNI" required>
+        </div>
+        <div class="form-group">
+          <label for="matricula">Matricula:</label>
+          <input type="text" id="matricula" name="matricula" placeholder="Ingresa tu matricula" required>
+      </div>
+        <button type="submit">Consultar</button>
+    </form>
+    <p>¿Quieres acceder como usuario? <a href="login.html">Haz login aquí</a></p>
+</div>
+
+
+
 <div class="app-body">
     <!-- Barra lateral izquierda (con contenido rotado) -->
     <div class="sidebar-left">
@@ -16,6 +39,7 @@
           <div class="expediente nuevo" id="crear-expediente">+ Crear nuevo expediente</div>
         </div>
       </div>
+      
     <!-- Contenido principal -->
     <div class="main-content">
       <h1>Informacion sobre el expediente:</h1>
@@ -49,7 +73,7 @@
   
     <!-- Barra lateral derecha con círculos -->
     <div class="sidebar-right">
-      <div class="step" id="circuloUno"> Recepción de la declaración </div>
+      <div class="step" class="activo" id="circuloUno"> Recepción de la declaración </div>
       <div class="step" id="circuloDos"> Aclaración de sucesos</div>
       <div class="step" id="circuloTres"> Valoración</div>
       <div class="step" id="circuloCuatro"> Comprovación siniestro</div>
@@ -58,73 +82,180 @@
     </div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        fetch('/mis-expedientes')
-          .then(res => {
-            if (!res.ok) throw new Error('No se pudo cargar los expedientes');
-            return res.json();
-          })
-          .then(data => {
-            const contenedor = document.querySelector('.expedientes-container');
-    
-            data.forEach((expediente) => {
-              const div = document.createElement('div');
-              div.className = 'expediente';
-              div.textContent = expediente.id_expediente;
+      // Al cargar la página comprobamos la sesión
+      fetch('/api/session')
+        .then(r => r.json())
+        .then(({ user }) => {
+          if (!user) {
+            NoUser();
+            document.getElementById('consultor-container').style.display = 'block';
 
-              div.addEventListener('click', () => {
-                // 1) Quitamos la clase activo de todos
-                document.querySelectorAll('.expediente').forEach(el => {
-                  el.classList.remove('activo');
-                });
+          } else {
+            // Con sesión: guarda en una variable global o actualiza el DOM
+            window.CURRENT_USER = user;
 
-                // 2) Guardamos el id del expediente en una cookie
-                document.cookie = `id_expediente=${expediente.id_expediente}; path=/; max-age=${60*60}`;
+            console.log('Usuario logueado:', user.nombre);
+            
+          }
+        })
+        .catch(err => {
+          console.error('Error comprobando la sesión:', err);
+          //window.location.href = '/login';
+        });
+      </script>
 
-                // 2) La añadimos **solo** al div clicado
-                div.classList.add('activo');
+      <script>
+        function NoUser() {
+          // Aquí puedes manejar la lógica para redirigir al usuario a la página de inicio de sesión
+          document.getElementById('crear-expediente').style.display = 'none';
 
-                // 3) Rellenamos la info...
-                info.innerHTML = `ID: ${expediente.id_expediente}<br>
-                  Descripción: ${expediente.descripcion}<br>
-                  Matrícula: ${expediente.matricula}<br>
-                  DNI cliente: ${expediente.dni_cliente}<br>
-                  Fecha creación: ${expediente.fecha_creacion}<br>`;
+        }
+      </script>
 
-                  getEstado();
-            });
-
-            const btnCrear = document.getElementById('crear-expediente');
-              btnCrear.addEventListener('click', () => {
-                fetch('/mis-expedientes', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' }
-                })
-                .then(res => {
-                  if (!res.ok) throw new Error('Error creando expediente');
-                  return res.json();
-                })
-                .then(nuevo => {
-                  // Añade el nuevo div al principio de la lista
-                  const div = document.createElement('div');
-                  div.className = 'expediente';
-                  div.textContent = nuevo.id_expediente;
-                  div.addEventListener('click', () => seleccionarExpediente(nuevo));
-                  contenedor.prepend(div);
-
-                  // Opcional: seleccionarlo automáticamente
-                  seleccionarExpediente(nuevo);
-                })
-                .catch(console.error);
-              });
-
-  contenedor.appendChild(div);
-});
-          })
-          .catch(err => console.error('Error al cargar expedientes:', err));
-      });
+    <script>
       
-    </script>
+     
+      document.addEventListener('DOMContentLoaded', () => {
+  const contenedor = document.querySelector('.expedientes-container');
+  const info = document.getElementById('info');
+  const btnCrear = document.getElementById('crear-expediente');
+
+  // 1) Listener de creación = SOLO UNA VEZ
+  btnCrear.addEventListener('click', () => {
+    fetch('/mis-expedientes', { method: 'POST' })
+      .then(r => {
+        if (!r.ok) throw new Error('Error creando expediente');
+        return r.json();
+      })
+      .then(nuevo => {
+        // Crear el div y añadirlo
+        const div = document.createElement('div');
+        div.className = 'expediente';
+        div.textContent = nuevo.id_expediente;
+        div.addEventListener('click', () => seleccionarExpediente(nuevo, div));
+        contenedor.prepend(div);
+        seleccionarExpediente(nuevo, div);
+      })
+      .catch(console.error);
+  });
+
+  // 2) Cargar lista = SOLO UNA VEZ
+  fetch('/mis-expedientes')
+    .then(r => r.ok ? r.json() : Promise.reject('Error'))
+    .then(data => {
+      data.forEach(exp => {
+        const div = document.createElement('div');
+        div.className = 'expediente';
+        div.textContent = exp.id_expediente;
+        div.addEventListener('click', () => seleccionarExpediente(exp, div));
+        contenedor.appendChild(div);
+      });
+    })
+    .catch(console.error);
+
+  // 3) Función común
+  
+});
+function seleccionarExpediente(expediente, div) {
+    document.querySelectorAll('.expediente').forEach(el => el.classList.remove('activo'));
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    div.classList.add('activo');
+
+    document.cookie = `id_expediente=${expediente.id_expediente}; path=/; max-age=${60*60}`;
+
+    info.innerHTML = `
+      ID: ${expediente.id_expediente}<br>
+      Descripción: ${expediente.descripcion}<br>
+      Matrícula: ${expediente.matricula}<br>
+      DNI cliente: ${expediente.dni_cliente}<br>
+      Fecha creación: ${expediente.fecha_creacion}
+    `;
+
+    getEstado();
+  }
+</script>
+      
+      
+<script>
+  document.getElementById('formConsulta').addEventListener('submit', e => {
+    e.preventDefault();
+    const errorDiv = document.getElementById('error');
+    const info = document.getElementById('info');
+    const contenedor = document.querySelector('.expedientes-container');
+    errorDiv.textContent = '';
+    info.textContent = '';
+    const numExp = document.getElementById('numExpediente').value.trim();
+    const dni    = document.getElementById('dni').value.trim();
+    const mat    = document.getElementById('matricula').value.trim();
+
+    fetch('/consulta-expediente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        numExpediente: numExp,
+        dni: dni,
+        matricula: mat
+      })
+    })
+    .then(res => {
+      if (res.status === 404) {
+        throw new Error('No se encontró expediente con esos datos');
+      }
+      if (!res.ok) {
+        throw new Error('Error del servidor');
+      }
+      return res.json();
+    })
+    .then(exp => {
+      // Pintar resultado
+      document.cookie = `id_expediente=${exp.id_expediente}; path=/; max-age=${60*60}`;
+      getEstado();
+      const div = document.createElement('div');
+        div.className = 'expediente';
+        div.textContent = exp.id_expediente;
+        div.addEventListener('click', () => seleccionarExpediente(exp, div));
+        contenedor.prepend(div);
+        seleccionarExpediente(exp, div);
+      
+      info.innerHTML = `
+        <h3>Expediente #${exp.id_expediente}</h3>
+        <p><strong>Descripción:</strong> ${exp.descripcion || '—'}</p>
+        <p><strong>Matrícula:</strong> ${exp.matricula}</p>
+        <p><strong>DNI Cliente:</strong> ${exp.dni_cliente}</p>
+        <p><strong>Fecha Creación:</strong> ${exp.fecha_creacion}</p>
+        <p><strong>Último Estado:</strong> ${exp.nombre_estado || '—'}</p>
+        <p><strong>Desde:</strong> ${exp.fecha_cambio || '—'}</p>
+      `;
+      document.getElementById('consultor-container').style.display = 'none';
+      
+      if(document.getElementById('nuevoExpediente')){
+        let nuevo = document.getElementById('nuevo expediente');
+        nuevo.remove();
+        nuevaConsulta()
+      }else{
+        nuevaConsulta()
+      }
+
+      function nuevaConsulta() {
+        const div = document.createElement('div');
+        div.id = 'nuevoExpediente';
+        div.className = 'expediente';
+        div.textContent = "Consultar nuevo expediente";
+        
+        div.addEventListener('click', () => {
+          document.getElementById('consultor-container').style.display = 'block';
+          
+        });
+        document.querySelector('.expedientes-container').appendChild(div);
+      }
+
+    })
+    .catch(err => {
+      errorDiv.textContent = err.message;
+    });
+  });
+</script>
+
 
     <script>
       // Aquí adquirimos el tipo de usuario para determinar sus permisos de modificación y estado de la solicitud
@@ -171,11 +302,8 @@ function getEstado() {
 };
     </script>
 
-    <script>
-  
-</script>
+    
 
-  </div>
   
 
 
@@ -310,6 +438,72 @@ function getEstado() {
     background-color: #b4f439;
     border: 4px double black;
   }
+
+  .consultor-container {
+        
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        width: 400px;
+        text-align: center;
+        position: fixed;
+        z-index: 9999; 
+        margin: 0 auto; 
+        display: none;
+    }
+    h2 {
+        margin-bottom: 20px;
+        color: #333333;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555555;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    p {
+        margin-top: 15px;
+        color: #555555;
+    }
+
+    a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
 </style>
 
 </body>
