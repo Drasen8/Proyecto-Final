@@ -20,7 +20,7 @@ exports.createExpediente = async (req, res) => {
     return res.status(401).json({ error: 'Usuario no autenticado' });
   }
   try {
-    // 1) Crear expediente "vacío"
+    // 1) Crear expediente con el body del formulario
     const nuevo = await expedienteModel.createExpediente(req.body);
     // 2) Asociar al usuario
     await expedienteModel.associateUsuarioExpediente(idUsuario, nuevo.id_expediente);

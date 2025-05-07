@@ -48,6 +48,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'inicio.html'));
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 const expedienteRoutes = require('./routes/expedientes'); 
 app.use('/mis-expedientes', expedienteRoutes);
 
@@ -58,6 +60,8 @@ app.use('/estado-expediente', estadoRoutes);
 app.get('/api/session', (req, res) => {
   res.json({ user: req.session.user || null });
 });
+
+
 
 const consultaRoutes = require('./routes/consultas');
 app.use('/consulta-expediente', consultaRoutes);

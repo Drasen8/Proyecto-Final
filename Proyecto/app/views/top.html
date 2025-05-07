@@ -34,6 +34,12 @@
             font-weight: bold;
             white-space: nowrap; /* Evita que el logo se divida en varias líneas */
         }
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
         .nav-bar {
             display: flex;
             gap: 20px;
@@ -45,9 +51,10 @@
             white-space: nowrap; /* Evita que los textos se dividan */
         }
         .user-section {
+            position: relative;
             display: flex; /* Cambiado a flex para mejor alineación */
             align-items: center;
-            gap: 10px;
+            gap: 0px;
             margin-left: auto; /* Empuja la sección de usuario a la derecha */
         }
         .user-info {
@@ -82,6 +89,7 @@
         }
         .dropdown a:hover {
             background-color: #f0f0f0;
+            display: block;
         }
         .user-section:hover .dropdown {
             display: block;
@@ -91,7 +99,9 @@
 <body>
     <header>
         <div class="header-content">
-            <div class="logo">MiLogo</div>
+            <div class="logo">
+                <img src="/img/logo.png" alt="Usuario">
+          </div>
             <nav class="nav-bar">
                 <a href="#">Inicio</a>
                 <a href="#">Usuario</a>
@@ -99,14 +109,34 @@
             </nav>
             <div class="user-section">
                 <div class="user-info">
-                    <img src="ruta-a-la-imagen-del-usuario" alt="Usuario">
+                    <img src="/img/descarga.png" alt="Usuario"> 
                     <span>Nombre del Usuario</span>
                 </div>
                 <div class="dropdown">
                     <a href="#">Información de la cuenta</a>
-                    <a href="#">Cerrar sesión</a>
+                    <a href="#" id="logout-link">Cerrar sesión</a>
                 </div>
             </div>
+
+            <script>
+                document.getElementById('logout-link').addEventListener('click', e => {
+                  e.preventDefault();
+                  fetch('/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin'  // para enviar la cookie de sesión
+                  })
+                  .then(res => {
+                    if (!res.ok) throw new Error('Error cerrando sesión');
+                    // Recarga la página para actualizar la UI
+                    window.location.reload();
+                  })
+                  .catch(err => {
+                    console.error(err);
+                    alert('No se pudo cerrar sesión. Intenta de nuevo.');
+                  });
+                });
+              </script>
+              
         </div>
     </header>
 </body>

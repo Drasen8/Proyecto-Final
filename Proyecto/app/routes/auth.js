@@ -17,4 +17,18 @@ router.post('/login', authController.loginUser);
 
 router.post('/singUp', authController.signUpUser);
 
+// Cerrar sesión
+router.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Error al destruir sesión:', err);
+      return res.status(500).json({ error: 'No se pudo cerrar sesión' });
+    }
+    // Opcional: limpia la cookie de sesión
+    res.clearCookie('connect.sid', { path: '/' });
+    res.sendStatus(200);
+  });
+});
+
+
 module.exports = router;
