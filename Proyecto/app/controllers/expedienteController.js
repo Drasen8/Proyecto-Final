@@ -21,7 +21,7 @@ exports.createExpediente = async (req, res) => {
   }
   try {
     // 1) Crear expediente "vacío"
-    const nuevo = await expedienteModel.createExpediente();
+    const nuevo = await expedienteModel.createExpediente(req.body);
     // 2) Asociar al usuario
     await expedienteModel.associateUsuarioExpediente(idUsuario, nuevo.id_expediente);
     // 3) Estado inicial = 1

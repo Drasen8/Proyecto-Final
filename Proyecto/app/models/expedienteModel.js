@@ -17,19 +17,30 @@ exports.getExpedientesPorUsuario = (nombreUsuario) => {
   });
 };
 
-exports.createExpediente = () => {
-  const sql = `
-    INSERT INTO Expedientes (descripcion, matricula, dni_cliente)
-    VALUES (NULL, NULL, NULL)
-  `;
+exports.createExpediente = ({ descripcion, matricula, dni_cliente }) => {
   return new Promise((resolve, reject) => {
-    db.query(sql, (err, result) => {
+    // 1) Insertamos con los valores que vienen del formulario
+    const sqlInsert = `
+      INSERT INTO Expedientes (descripcion, matricula, dni_cliente)
+      VALUES (?, ?, ?)
+    `;
+    db.query(sqlInsert, [descripcion, matricula, dni_cliente], (err, result) => {
       if (err) return reject(err);
-      resolve({ id_expediente: result.insertId });
+      const newId = result.insertId;
+
+      // 2) Recuperamos el registro completo (incluye fecha_creacion automática)
+      const sqlSelect = `
+        SELECT *
+          FROM Expedientes
+         WHERE id_expediente = ?
+      `;
+      db.query(sqlSelect, [newId], (err2, rows) => {
+        if (err2) return reject(err2);
+        resolve(rows[0]);
+      });
     });
   });
 };
-
 exports.associateUsuarioExpediente = (id_usuario, id_expediente) => {
   const sql = `
     INSERT INTO Usuarios_Expedientes (id_usuario, id_expediente)
