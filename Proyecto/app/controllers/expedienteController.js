@@ -33,3 +33,17 @@ exports.createExpediente = async (req, res) => {
     res.status(500).json({ error: 'No se pudo crear expediente' });
   }
 };
+
+// POST /expedientes/:id/next
+exports.nextEstado = async (req, res) => {
+  const id = req.params.id;
+  console.log('nextEstado para expediente:', id);
+  try {
+    const nuevo = await expedienteModel.nextEstado(id);
+    console.log(`exp ${id} pasó a estado ${nuevo}`);
+    res.json({ nuevoEstado: nuevo });
+  } catch (err) {
+    console.error('Error en nextEstado:', err);
+    res.status(500).json({ error: err.message });
+  }
+};

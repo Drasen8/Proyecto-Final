@@ -8,4 +8,6 @@ router.get('/', expedienteCtrl.getExpedientesUsuario);
 // POST /mis-expedientes  → crear nuevo expediente
 router.post('/', expedienteCtrl.createExpediente);
 
+router.post('/:id/next',     expedienteCtrl.nextEstado);
+
 module.exports = router;

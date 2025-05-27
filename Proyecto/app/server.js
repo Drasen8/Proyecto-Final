@@ -5,6 +5,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const cors = require('cors');
 
+
 // Configuración CORS (usa solo una de estas opciones)
 app.use(cors({
   origin: `http://localhost:${port}`,
@@ -53,6 +54,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const expedienteRoutes = require('./routes/expedientes'); 
 app.use('/mis-expedientes', expedienteRoutes);
 
+app.use('/expedientes', require('./routes/expedientes'));
 
 const estadoRoutes = require('./routes/estado'); 
 app.use('/estado-expediente', estadoRoutes);
@@ -61,6 +63,7 @@ app.get('/api/session', (req, res) => {
   res.json({ user: req.session.user || null });
 });
 
+app.use('/expedientes', require('./routes/archivo'));
 
 
 const consultaRoutes = require('./routes/consultas');
@@ -68,6 +71,10 @@ app.use('/consulta-expediente', consultaRoutes);
 
 const authRoutes = require(path.join(__dirname, './routes/auth'));
 app.use('/', authRoutes);
+
+// app.js (o server.js), tras `app.use(express.static('public'))`
+app.use('/descargas', express.static(path.join(__dirname, 'public/descargas')));
+
 
 
 // Iniciar servidor

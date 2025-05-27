@@ -66,3 +66,32 @@ exports.insertEstadoInicial = (id_expediente, id_estado = 1) => {
     });
   });
 };
+
+exports.nextEstado = (id_expediente) => {
+  return new Promise((resolve, reject) => {
+    // 1) Obtén el último estado
+    const sql0 = `
+      SELECT id_estado
+        FROM Expediente_Estados
+       WHERE id_expediente = ?
+       ORDER BY fecha_cambio DESC
+       LIMIT 1
+    `;
+    db.query(sql0, [id_expediente], (err, rows) => {
+      if (err) return reject(err);
+      // Si no hay ninguno, arranca en estado 1
+      const actual = rows[0]?.id_estado ?? 0;
+      const siguiente = actual + 1;
+
+      // 2) Inserta el nuevo estado
+      const sql1 = `
+        INSERT INTO Expediente_Estados (id_expediente, id_estado)
+        VALUES (?, ?)
+      `;
+      db.query(sql1, [id_expediente, siguiente], err2 => {
+        if (err2) return reject(err2);
+        resolve(siguiente);
+      });
+    });
+  });
+};

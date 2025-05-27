@@ -66,22 +66,140 @@
       <h1>Informacion sobre el expediente:</h1>
       <p id="info"></p>
       <p>Estado:</p>
-      <div id="uno" hidden>
+      <div id="uno" class="bloques" hidden>
+        <h2>Recepción de la declaración</h2>
+  <div id="areaSubida">
+    <form id="formArchivos">
+      <label>Foto:</label>
+      <input type="file" name="foto" accept="image/*" required><br>
+      <label>PDF:</label>
+      <input type="file" name="pdf" accept="application/pdf" required><br>
+      <button type="submit">Subir</button>
+    </form>
+  </div>
+  <div id="vistas" style="display:none;">
+    <h3>Archivos cargados:</h3>
+    <div><a id="linkFoto"  href="#" download>Descargar foto</a></div>
+    <div><a id="linkPDF"   href="#" download>Descargar PDF</a></div>
+    <button id="rectificar">Reemplazar archivos</button>
+  </div>
+  <button id="nextEstado">Siguiente paso</button>
+  <script>
+  async function initPaso1(id) {
+  const area    = document.getElementById('areaSubida');
+  const vistas  = document.getElementById('vistas');
+  const form    = document.getElementById('formArchivos');
+  const linkF   = document.getElementById('linkFoto');
+  const linkP   = document.getElementById('linkPDF');
+  const btnNext = document.getElementById('nextEstado');
+  const btnRec  = document.getElementById('rectificar');
+
+  // Quitamos listeners previos para no duplicar
+  form.replaceWith(form.cloneNode(true));
+  btnNext.replaceWith(btnNext.cloneNode(true));
+  btnRec.replaceWith(btnRec.cloneNode(true));
+  // Re-obtener referencias limpias
+  const cleanForm   = document.getElementById('formArchivos');
+  const cleanBtnNext= document.getElementById('nextEstado');
+  const cleanBtnRec = document.getElementById('rectificar');
+
+  try {
+    // 1) Comprueba si ya hay archivos
+    const res = await fetch(`/expedientes/${id}/archivos`);
+    if (!res.ok) throw new Error(`GET archivos falló: ${res.status}`);
+    const { foto_path, pdf_path } = await res.json();
+
+    if (foto_path && pdf_path) {
+      area.style.display   = 'block';
+      vistas.style.display = 'block';
+      linkF.href = `/descargas/${foto_path}`;
+      linkP.href = `/descargas/${pdf_path}`;
+    } else {
+      area.style.display   = 'block';
+      vistas.style.display = 'none';
+    }
+
+    // 2) Subida de archivos
+    cleanForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      try {
+        const data = new FormData(cleanForm);
+        const resp = await fetch(`/expedientes/${id}/archivos`, {
+          method: 'POST',
+          body: data
+        });
+        if (!resp.ok) throw new Error(`POST archivos falló: ${resp.status}`);
+        await initPaso1(id); // refresca la vista
+        getEstado();
+      } catch (err) {
+        console.error('Error en subida de archivos:', err);
+        alert('Error subiendo archivos, comprueba consola.');
+      }
+    });
+
+    // 3) Rectificar
+    cleanBtnRec.addEventListener('click', () => {
+      vistas.style.display = 'none';
+      area.style.display   = 'block';
+    });
+
+    // 4) Siguiente estado
+    cleanBtnNext.addEventListener('click', async () => {
+  try {
+    const resp = await fetch(`/expedientes/${id}/next`, {
+      method: 'POST',
+      credentials: 'same-origin'       // <— incluye la cookie de sesión
+    });
+    console.log('nextEstado response status:', resp.status);
+    const text = await resp.text();
+    console.log('nextEstado response body:', text);
+    if (!resp.ok) {
+      throw new Error(`Error ${resp.status}: ${text}`);
+    }
+    // Si todo OK, recarga
+    window.location.reload();
+  } catch (err) {
+    console.error('Error cambiando estado:', err);
+    alert(`No se pudo avanzar de estado:\n${err.message}`);
+  }
+});
+
+  } catch (err) {
+    console.error('Error en initPaso1:', err);
+    alert('No se pudieron cargar los archivos. Mira la consola.');
+  }
+}
+
+</script>
+      </div>
+      <div id="dos" class="bloques" hidden>
+        <h4>Expediente con comprobación</h4>
+        <div id="areaSubida">
+          <form id="formArchivos">
+            <label>Foto:</label>
+            <input type="file" name="foto" accept="image/*" required><br>
+            <label>PDF:</label>
+            <input type="file" name="pdf" accept="application/pdf" required><br>
+            <button type="submit">Subir</button>
+          </form>
+        </div>
         
+        <script>
+          //Aui tiene que poder subir un pdf pero solo elmusuario que sea tipo aseguradora 
+          </script>
       </div>
-      <div id="dos" hidden>
-
+      <div id="tres" class="bloques" hidden>
+        <script>
+          //descripcion corta para sintetizar informacion
+          //Aui tiene que poder subir un pdf pero solo elmusuario que sea tipo aseguradora 
+          </script>
       </div>
-      <div id="tres" hidden>
-
+      <div id="cuatro" class="bloques" hidden>
+        <script>
+          //Informe subido por el perito
+          //ANegiciación del precio          </script>
       </div>
-      <div id="cuatro" hidden>
-
-      </div>
-      <div id="cinco" hidden>
-
-      </div>
-      <div id="seis" hidden>
+      <div id="seis" class="bloques" hidden>
         <h1>Resolución de la tramitación</h1>
         <select name="tipo" id="tipo">
           <option value="" selected disabled>Selecciona un tipo de usuario</option>
@@ -95,14 +213,46 @@
     <!-- Barra lateral derecha con círculos -->
     <div class="sidebar-right">
       <div class="step" class="activo" id="circuloUno"> Recepción de la declaración </div>
-      <div class="step" id="circuloDos"> Aclaración de sucesos</div>
-      <div class="step" id="circuloTres"> Valoración</div>
-      <div class="step" id="circuloCuatro"> Comprovación siniestro</div>
-      <div class="step" id="circuloCinco"> Peritaje</div>
-      <div class="step" id="circuloSeis"> Resoucion de la tramitacion</div>
+      <div class="step" id="circuloDos"> Aclaración de succesos</div>
+      <div class="step" id="circuloTres"> Cobertura poliza</div>
+      <div class="step" id="circuloCuatro"> Peritaje</div>
+      <div class="step" id="circuloSeis"> Resolución de la tramitación</div>
     </div>
 
     <script>
+      // Seleccion de del paso 
+      
+      const steps = [
+  document.getElementById('circuloUno'),
+  document.getElementById('circuloDos'),
+  document.getElementById('circuloTres'),
+  document.getElementById('circuloCuatro'),
+  document.getElementById('circuloCinco')
+];
+
+steps.forEach((step, index) => {
+  step.addEventListener('click', () => {
+    // Oculta todos los bloques
+    const bloques = document.getElementsByClassName('bloques');
+    for (let i = 0; i < bloques.length; i++) {
+      bloques[i].hidden = true;
+    }
+
+    // Quita la clase active de todos los círculos
+    const circulos = document.getElementsByClassName('step');
+    for (let i = 0; i < circulos.length; i++) {
+      circulos[i].classList.remove('active');
+    }
+
+    // Muestra el bloque correspondiente al índice
+    const area = bloques[index];
+    if (area) area.hidden = false;
+
+    // Activa el círculo clicado
+    step.classList.add('active');
+  });
+});
+
       // Al cargar la página comprobamos la sesión
       fetch('/api/session')
         .then(r => r.json())
@@ -208,22 +358,28 @@
   });
   
   // Función de selección (fuera del DOMContentLoaded para que sea global)
-  function seleccionarExpediente(expediente, div) {
-    document.querySelectorAll('.expediente').forEach(el => el.classList.remove('activo'));
-    div.classList.add('activo');
+  function seleccionarExpediente(exp, div) {
+  // Limpia clases
+  document.querySelectorAll('.expediente').forEach(el => el.classList.remove('activo'));
+  div.classList.add('activo');
+
+  // Guarda cookie
+  document.cookie = `id_expediente=${exp.id_expediente}; path=/; max-age=${60*60}`;
+
+  // Rellena info usando la variable correcta: exp
+  document.getElementById('info').innerHTML = `
+    ID: ${exp.id_expediente}<br>
+    Descripción: ${exp.descripcion}<br>
+    Matrícula: ${exp.matricula}<br>
+    DNI cliente: ${exp.dni_cliente}<br>
+    Fecha creación: ${exp.fecha_creacion}
+  `;
+  // Muestra el paso 1 y llama a init, pasando exp.id_expediente
   
-    document.cookie = `id_expediente=${expediente.id_expediente}; path=/; max-age=${60*60}`;
-  
-    document.getElementById('info').innerHTML = `
-      ID: ${expediente.id_expediente}<br>
-      Descripción: ${expediente.descripcion}<br>
-      Matrícula: ${expediente.matricula}<br>
-      DNI cliente: ${expediente.dni_cliente}<br>
-      Fecha creación: ${expediente.fecha_creacion}
-    `;
-  
-    getEstado();
-  }
+  initPaso1(exp.id_expediente);
+  getEstado()
+}
+
   </script>
       
       
@@ -319,31 +475,44 @@ function getEstado() {
   })
   .then(estado => {
 
-      console.log(estado.nombre_estado);
+      const bloques = document.getElementsByClassName('bloques');
+      for (let i = 0; i < bloques.length; i++) {
+              bloques[i].hidden = true;
+            }
+      const circulos = document.getElementsByClassName('step');
+      for (let i = 0; i < circulos.length; i++) {
+              circulos[i].classList.remove('active');
+            }
       switch (estado.nombre_estado){
         case 'Recepción de la declaración':
           document.getElementById('uno').removeAttribute('hidden');
           document.getElementById('circuloUno').classList.add('active');
+          
+            
           break;
         case 'Aclaración de sucesos':
+       
           document.getElementById('dos').removeAttribute('hidden');
           document.getElementById('circuloDos').classList.add('active');
+            
           break;
-        case 'Valoración':
+        case 'Cobertura poliza':
+       
           document.getElementById('tres').removeAttribute('hidden');
           document.getElementById('circuloTres').classList.add('active');
-          break;
-        case 'Comprovación siniestro':
-          document.getElementById('cuatro').removeAttribute('hidden');
-          document.getElementById('circuloCuatro').classList.add('active');
+          
           break;
         case 'Peritaje':
-          document.getElementById('cinco').removeAttribute('hidden');
-          document.getElementById('circuloCinco').classList.add('active');
+       
+          document.getElementById('cuatro').removeAttribute('hidden');
+          document.getElementById('circuloCuatro').classList.add('active');
+         
           break;
         case 'Resoución de la tramitación':
+       
           document.getElementById('seis').removeAttribute('hidden');
           document.getElementById('circuloSeis').classList.add('active');
+         
           break;
       }
   })
