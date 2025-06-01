@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 // Configuración del motor de vistas
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('docs', path.join(__dirname, 'docs'));
 
 // Middlewares
 app.use(express.json());
@@ -37,35 +37,35 @@ app.use(session({
 }));
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'iniciasesion.html'));
+  res.sendFile(path.join(__dirname, 'docs', 'iniciasesion.html'));
 });
 
 app.get('/singUp', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'registro.html'));
+  res.sendFile(path.join(__dirname, 'docs', 'registro.html'));
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'inicio.html'));
+  res.sendFile(path.join(__dirname, 'docs', 'index.html'));
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const expedienteRoutes = require('../routes/expedientes'); 
+const expedienteRoutes = require('./routes/expedientes'); 
 app.use('/mis-expedientes', expedienteRoutes);
 
-app.use('/expedientes', require('../routes/expedientes'));
+app.use('/expedientes', require('./routes/expedientes'));
 
-const estadoRoutes = require('../routes/estado'); 
+const estadoRoutes = require('./routes/estado'); 
 app.use('/estado-expediente', estadoRoutes);
 
 app.get('/api/session', (req, res) => {
   res.json({ user: req.session.user || null });
 });
 
-app.use('/archivos', require('../routes/archivo'));
+app.use('/archivos', require('./routes/archivo'));
 
 
-const consultaRoutes = require('../routes/consultas');
+const consultaRoutes = require('./routes/consultas');
 app.use('/consulta-expediente', consultaRoutes);
 
 const authRoutes = require(path.join(__dirname, './routes/auth'));
@@ -76,7 +76,7 @@ app.use('/descargas', express.static(path.join(__dirname, 'public/descargas')));
 
 
 // Archivos estáticos (CSS, JS, imágenes)
-app.use(express.static(path.join(__dirname, 'views')));
+app.use(express.static(path.join(__dirname, 'docs')));
 
 // Iniciar servidor
 app.listen(port, () => {
