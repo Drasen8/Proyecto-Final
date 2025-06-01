@@ -1,4 +1,4 @@
-const db = require('../models/db.js'); // Asegúrate de que la ruta sea correcta
+const db = require('./db.js'); // Asegúrate de que la ruta sea correcta
 
 exports.getUserByNombreYContraseña = (nombre, contraseña) => {
   return new Promise((resolve, reject) => {

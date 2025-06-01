@@ -50,22 +50,22 @@ app.get('/', (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const expedienteRoutes = require('./routes/expedientes'); 
+const expedienteRoutes = require('../routes/expedientes'); 
 app.use('/mis-expedientes', expedienteRoutes);
 
-app.use('/expedientes', require('./routes/expedientes'));
+app.use('/expedientes', require('../routes/expedientes'));
 
-const estadoRoutes = require('./routes/estado'); 
+const estadoRoutes = require('../routes/estado'); 
 app.use('/estado-expediente', estadoRoutes);
 
 app.get('/api/session', (req, res) => {
   res.json({ user: req.session.user || null });
 });
 
-app.use('/archivos', require('./routes/archivo'));
+app.use('/archivos', require('../routes/archivo'));
 
 
-const consultaRoutes = require('./routes/consultas');
+const consultaRoutes = require('../routes/consultas');
 app.use('/consulta-expediente', consultaRoutes);
 
 const authRoutes = require(path.join(__dirname, './routes/auth'));

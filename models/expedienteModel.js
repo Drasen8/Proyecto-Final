@@ -1,4 +1,4 @@
-const db = require('../models/db.js');
+const db = require('./db.js');
 
 exports.getExpedientesPorUsuario = (nombreUsuario) => {
   const sql = `
