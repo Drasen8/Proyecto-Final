@@ -105,12 +105,12 @@
 
   try {
     // 1) Comprueba si ya hay archivos
-    const res = await fetch(`/expedientes/${id}/archivos`);
+    const res = await fetch(`/archivos/${id}/archivos`);
     if (!res.ok) throw new Error(`GET archivos falló: ${res.status}`);
     const { foto_path, pdf_path } = await res.json();
 
     if (foto_path && pdf_path) {
-      area.style.display   = 'block';
+      area.style.display   = 'none';
       vistas.style.display = 'block';
       linkF.href = `/descargas/${foto_path}`;
       linkP.href = `/descargas/${pdf_path}`;
@@ -124,7 +124,7 @@
       e.preventDefault();
       try {
         const data = new FormData(cleanForm);
-        const resp = await fetch(`/expedientes/${id}/archivos`, {
+        const resp = await fetch(`/archivos/${id}/archivos`, {
           method: 'POST',
           body: data
         });
@@ -144,25 +144,7 @@
     });
 
     // 4) Siguiente estado
-    cleanBtnNext.addEventListener('click', async () => {
-  try {
-    const resp = await fetch(`/expedientes/${id}/next`, {
-      method: 'POST',
-      credentials: 'same-origin'       // <— incluye la cookie de sesión
-    });
-    console.log('nextEstado response status:', resp.status);
-    const text = await resp.text();
-    console.log('nextEstado response body:', text);
-    if (!resp.ok) {
-      throw new Error(`Error ${resp.status}: ${text}`);
-    }
-    // Si todo OK, recarga
-    window.location.reload();
-  } catch (err) {
-    console.error('Error cambiando estado:', err);
-    alert(`No se pudo avanzar de estado:\n${err.message}`);
-  }
-});
+    pasarStep(id, cleanBtnNext);
 
   } catch (err) {
     console.error('Error en initPaso1:', err);
@@ -175,31 +157,208 @@
       <div id="dos" class="bloques" hidden>
         <h4>Expediente con comprobación</h4>
         <div id="areaSubida">
-          <form id="formArchivos">
-            <label>Foto:</label>
-            <input type="file" name="foto" accept="image/*" required><br>
+          <form id="formArchivosAclaracion">
             <label>PDF:</label>
             <input type="file" name="pdf" accept="application/pdf" required><br>
             <button type="submit">Subir</button>
           </form>
         </div>
+          
         
+        <div id="vistas" style="display:none;">
+          <h3>Archivos cargados:</h3>
+          <div><a id="linkPDF" href="#" download>Descargar PDF</a></div>
+          <button id="rectificar">Reemplazar archivos</button>
+          <button id="btnNextAclar">Siguiente paso</button>
+        </div>
+      
         <script>
-          //Aui tiene que poder subir un pdf pero solo elmusuario que sea tipo aseguradora 
-          </script>
+          async function initPaso2(id) {
+            // 1) Seleccionamos solo el contenedor del paso 2
+            const contenedor = document.getElementById('dos');
+            if (!contenedor) return;
+      
+            // 2) Buscamos dentro de él los IDs tal cual aparecen en tu HTML
+            const form    = contenedor.querySelector('#formArchivosAclaracion');
+            const btnNext = contenedor.querySelector('#btnNextAclar');
+            const btnRec  = contenedor.querySelector('#rectificar');
+            const area    = contenedor.querySelector('#areaSubida');
+            const vistas  = contenedor.querySelector('#vistas');
+            const linkP   = contenedor.querySelector('#linkPDF');
+      
+            // Si alguno no se encuentra, salimos por seguridad
+            if (!form || !btnNext || !btnRec || !area || !vistas || !linkP) {
+              console.error('initPaso2: Falta alguno de los elementos dentro de #dos');
+              return;
+            }
+      
+            // 3) Clonamos para quitar listeners previos (evita duplicados)
+            form.replaceWith(form.cloneNode(true));
+            btnNext.replaceWith(btnNext.cloneNode(true));
+            btnRec.replaceWith(btnRec.cloneNode(true));
+      
+            // 4) Recuperamos las referencias tras el clone
+            const cleanForm    = contenedor.querySelector('#formArchivosAclaracion');
+            const cleanBtnNext = contenedor.querySelector('#btnNextAclar');
+            const cleanBtnRec  = contenedor.querySelector('#rectificar');
+      
+            try {
+              // 5) Comprobamos si ya hay un PDF de aclaración en la BD
+              const res = await fetch(`/archivos/${id}/archivos/aclaracion`);
+              if (!res.ok) throw new Error(`GET aclaración falló: ${res.status}`);
+              const { pdf_aclaracion } = await res.json();
+      
+              if (pdf_aclaracion) {
+                area.style.display   = 'none';
+                vistas.style.display = 'block';
+                linkP.href = `/descargas/${pdf_aclaracion}`;
+              } else {
+                area.style.display   = 'block';
+                vistas.style.display = 'none';
+              }
+      
+              // 6) Listener para subir un nuevo PDF de aclaración
+              cleanForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                try {
+                  const data = new FormData(cleanForm);
+                  const resp = await fetch(`/archivos/${id}/archivos/aclaracion`, {
+                    method: 'POST',
+                    body: data
+                  });
+                  if (!resp.ok) throw new Error(`POST aclaración falló: ${resp.status}`);
+                  // Después de subir, refrescamos esta misma sección
+                  await initPaso2(id);
+                  getEstado();
+                } catch (err) {
+                  console.error('Error en subida de aclaración:', err);
+                  alert('Error subiendo PDF de aclaración. Revisa la consola.');
+                }
+              });
+      
+              // 7) “Rectificar”: volvemos a mostrar el formulario
+              cleanBtnRec.addEventListener('click', () => {
+                vistas.style.display = 'none';
+                area.style.display   = 'block';
+              });
+      
+              // 8) Botón para pasar de estado
+              pasarStep(id, cleanBtnNext);
+      
+            } catch (err) {
+              console.error('Error en initPaso2:', err);
+              alert('No se pudieron cargar los archivos de aclaración. Mira la consola.');
+            }
+          }
+        </script>
       </div>
+      
       <div id="tres" class="bloques" hidden>
+        <h4>Cobertura de Póliza</h4>
+        <div id="areaSubidaCobertura">
+          <form id="formArchivosCobertura">
+            <label>PDF de Cobertura:</label><br>
+            <input type="file" name="pdf" accept="application/pdf" required><br>
+            <button type="submit">Subir cobertura</button>
+          </form>
+          <button id="btnNextCobertura">Siguiente paso</button>
+        </div>
+        <div id="vistasCobertura" style="display:none;">
+          <h3>PDF de Cobertura subido:</h3>
+          <div><a id="linkPDFCobertura" href="#" download>Descargar cobertura</a></div>
+          <button id="rectificarCobertura">Reemplazar cobertura</button>
+        </div>
+      
         <script>
-          //descripcion corta para sintetizar informacion
-          //Aui tiene que poder subir un pdf pero solo elmusuario que sea tipo aseguradora 
-          </script>
+          async function initPaso3(id) {
+            // 1) Localiza solo el contenedor de “tres”
+            const contenedor = document.getElementById('tres');
+            if (!contenedor) return;
+      
+            // 2) Busca dentro de él los elementos con sus nuevos IDs
+            const form    = contenedor.querySelector('#formArchivosCobertura');
+            const btnNext = contenedor.querySelector('#btnNextCobertura');
+            const btnRec  = contenedor.querySelector('#rectificarCobertura');
+            const area    = contenedor.querySelector('#areaSubidaCobertura');
+            const vistas  = contenedor.querySelector('#vistasCobertura');
+            const linkP   = contenedor.querySelector('#linkPDFCobertura');
+      
+            // Comprueba que existan todas las referencias
+            if (!form || !btnNext || !btnRec || !area || !vistas || !linkP) {
+              console.error('initPaso3: algún ID falta dentro de #tres');
+              return;
+            }
+      
+            // 3) Remueve posibles listeners anteriores clonando nodos
+            form.replaceWith(form.cloneNode(true));
+            btnNext.replaceWith(btnNext.cloneNode(true));
+            btnRec.replaceWith(btnRec.cloneNode(true));
+      
+            // 4) Vuelve a tomar las referencias “limpias”
+            const cleanForm    = contenedor.querySelector('#formArchivosCobertura');
+            const cleanBtnNext = contenedor.querySelector('#btnNextCobertura');
+            const cleanBtnRec  = contenedor.querySelector('#rectificarCobertura');
+      
+            try {
+              // 5) Comprueba si ya hay un PDF de cobertura en la BD
+              const res = await fetch(`/archivos/${id}/archivos/cobertura`);
+              if (!res.ok) throw new Error(`GET cobertura falló: ${res.status}`);
+              const { pdf_cobertura } = await res.json();
+      
+              if (pdf_cobertura) {
+                // Mostrar vista de descarga
+                area.style.display   = 'none';
+                vistas.style.display = 'block';
+                linkP.href = `/descargas/${pdf_cobertura}`;
+              } else {
+                // Si no existe, sigue mostrando el formulario
+                area.style.display   = 'block';
+                vistas.style.display = 'none';
+              }
+      
+              // 6) Listener para subir un PDF de cobertura
+              cleanForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                try {
+                  const data = new FormData(cleanForm);
+                  const resp = await fetch(`/archivos/${id}/archivos/cobertura`, {
+                    method: 'POST',
+                    body: data
+                  });
+                  if (!resp.ok) throw new Error(`POST cobertura falló: ${resp.status}`);
+                  // Si todo ok, recarga solo este paso
+                  await initPaso3(id);
+                  getEstado();
+                } catch (err) {
+                  console.error('Error en subida de cobertura:', err);
+                  alert('Error subiendo PDF de cobertura. Comprueba la consola.');
+                }
+              });
+      
+              // 7) Botón “Reemplazar cobertura” vuelve a mostrar el formulario
+              cleanBtnRec.addEventListener('click', () => {
+                vistas.style.display = 'none';
+                area.style.display   = 'block';
+              });
+      
+              // 8) Botón “Siguiente paso” reutiliza tu función pasarStep()
+              pasarStep(id, cleanBtnNext);
+      
+            } catch (err) {
+              console.error('Error en initPaso3:', err);
+              alert('No se pudieron cargar los archivos de cobertura. Mira la consola.');
+            }
+          }
+        </script>
       </div>
+      
       <div id="cuatro" class="bloques" hidden>
         <script>
           //Informe subido por el perito
           //ANegiciación del precio          </script>
+          <button id="nextEstado">Siguiente paso</button>
       </div>
-      <div id="seis" class="bloques" hidden>
+      <div id="cinco" class="bloques" hidden>
         <h1>Resolución de la tramitación</h1>
         <select name="tipo" id="tipo">
           <option value="" selected disabled>Selecciona un tipo de usuario</option>
@@ -207,6 +366,7 @@
           <option value="aseguradora">Aseguradora</option>
           <option value="perito">Perito</option>
       </select>
+
       </div>
     </div>
   
@@ -216,7 +376,7 @@
       <div class="step" id="circuloDos"> Aclaración de succesos</div>
       <div class="step" id="circuloTres"> Cobertura poliza</div>
       <div class="step" id="circuloCuatro"> Peritaje</div>
-      <div class="step" id="circuloSeis"> Resolución de la tramitación</div>
+      <div class="step" id="circuloCinco"> Resolución de la tramitación</div>
     </div>
 
     <script>
@@ -377,8 +537,12 @@ steps.forEach((step, index) => {
   // Muestra el paso 1 y llama a init, pasando exp.id_expediente
   
   initPaso1(exp.id_expediente);
-  getEstado()
-}
+  initPaso2(exp.id_expediente);
+  initPaso3(exp.id_expediente);
+  getEstado();
+};
+ 
+
 
   </script>
       
@@ -508,10 +672,10 @@ function getEstado() {
           document.getElementById('circuloCuatro').classList.add('active');
          
           break;
-        case 'Resoución de la tramitación':
+        case 'Resolución de la tramitación':
        
-          document.getElementById('seis').removeAttribute('hidden');
-          document.getElementById('circuloSeis').classList.add('active');
+          document.getElementById('cinco').removeAttribute('hidden');
+          document.getElementById('circuloCinco').classList.add('active');
          
           break;
       }
@@ -545,6 +709,30 @@ function getEstado() {
               });
           })
           .catch(error => console.error('Error loading header:', error));
+  </script>
+
+  <script>
+    function pasarStep(id, cleanBtnNext){
+    cleanBtnNext.addEventListener('click', async () => {
+          try {
+            const resp = await fetch(`/expedientes/${id}/next`, {
+              method: 'POST',
+              credentials: 'same-origin'       // <— incluye la cookie de sesión
+            });
+            console.log('nextEstado response status:', resp.status);
+            const text = await resp.text();
+            console.log('nextEstado response body:', text);
+            if (!resp.ok) {
+              throw new Error(`Error ${resp.status}: ${text}`);
+            }
+            // Si todo OK, recarga
+            window.location.reload();
+          } catch (err) {
+            console.error('Error cambiando estado:', err);
+            alert(`No se pudo avanzar de estado:\n${err.message}`);
+          }
+        });
+      }
   </script>
      <!-- Contenedor para el header -->
      <div id="bottom-container"></div>

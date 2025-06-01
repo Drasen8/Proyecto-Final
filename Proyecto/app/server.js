@@ -24,8 +24,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Archivos estáticos (CSS, JS, imágenes)
-app.use(express.static(path.join(__dirname, 'views')));
+
 
 const session = require('express-session');
 app.set('trust proxy', 1); // Habilitar si estás detrás de un proxy (como Heroku)
@@ -63,7 +62,7 @@ app.get('/api/session', (req, res) => {
   res.json({ user: req.session.user || null });
 });
 
-app.use('/expedientes', require('./routes/archivo'));
+app.use('/archivos', require('./routes/archivo'));
 
 
 const consultaRoutes = require('./routes/consultas');
@@ -76,6 +75,8 @@ app.use('/', authRoutes);
 app.use('/descargas', express.static(path.join(__dirname, 'public/descargas')));
 
 
+// Archivos estáticos (CSS, JS, imágenes)
+app.use(express.static(path.join(__dirname, 'views')));
 
 // Iniciar servidor
 app.listen(port, () => {
