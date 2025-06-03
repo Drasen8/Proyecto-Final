@@ -786,7 +786,7 @@ function getEstado() {
 
   <!-- Script corregido -->
   <script>
-      fetch('docs/top.html')  // ¡Atención a la barra inicial!
+      fetch('./top.html')  // ¡Atención a la barra inicial!
           .then(response => {
               if (!response.ok) throw new Error('Network response was not ok');
               return response.text();
@@ -833,7 +833,7 @@ function getEstado() {
      <!-- Script corregido -->
      
      <script>
-         fetch('docs/pagina.html')  // ¡Atención a la barra inicial!
+         fetch('./bottom.html')  // ¡Atención a la barra inicial!
              .then(response => {
                  if (!response.ok) throw new Error('Network response was not ok');
                  return response.text();
