@@ -8,7 +8,8 @@ module.exports = {
       SELECT foto_path,
              pdf_path,
              pdf_aclar,
-             pdf_cobertura   -- añade esta columna a la consulta
+             pdf_cobertura,   
+             pdf_peritaje
         FROM Expedientes
        WHERE id_expediente = ?
     `;
@@ -20,7 +21,8 @@ module.exports = {
           foto_path: null,
           pdf_path: null,
           pdf_aclar: null,
-          pdf_cobertura: null
+          pdf_cobertura: null,
+          pdf_peritaje: null
         });
       });
     });
@@ -57,7 +59,7 @@ module.exports = {
     });
   },
 
-  // ——— NUEVO: Guardar el archivo PDF de cobertura de póliza ———
+  
   savePdfCobertura: (id_expediente, pdf_cobertura) => {
     const sql = `
       UPDATE Expedientes
@@ -70,5 +72,22 @@ module.exports = {
         resolve();
       });
     });
+  },
+  
+  savePdfPeritaje: (id_expediente, pdf_peritaje) => {
+    const sql = `
+      UPDATE Expedientes
+         SET pdf_peritaje = ?
+       WHERE id_expediente = ?
+    `;
+    return new Promise((resolve, reject) => {
+      db.query(sql, [pdf_peritaje, id_expediente], err => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
   }
+
+  
 };
+

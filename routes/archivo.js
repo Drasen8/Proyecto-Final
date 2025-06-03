@@ -15,4 +15,7 @@ router.post('/:id/archivos/aclaracion',      ctrl.uploadArchivoPdfAclaracion);
 router.get('/:id/archivos/cobertura',        ctrl.getArchivosCobertura);
 router.post('/:id/archivos/cobertura',       ctrl.uploadArchivoPdfCobertura);
 
+router.get('/:id/archivos/peritaje',        ctrl.getArchivosPeritaje);
+router.post('/:id/archivos/peritaje',       ctrl.uploadArchivoPdfPeritaje);
+
 module.exports = router;

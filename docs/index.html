@@ -353,10 +353,102 @@
       </div>
       
       <div id="cuatro" class="bloques" hidden>
-        <script>
-          //Informe subido por el perito
-          //ANegiciación del precio          </script>
-          <button id="nextEstado">Siguiente paso</button>
+        <h4>Informe del peritaje:</h4>
+  <div id="areaSubidaPeritaje">
+    <form id="formArchivosPeritaje">
+      <label>PDF de Peritaje:</label><br>
+      <input type="file" name="pdf" accept="application/pdf" required><br>
+      <button type="submit">Subir peritaje</button>
+    </form>
+    <button id="btnNextPeritaje">Siguiente paso</button>
+  </div>
+  <div id="vistasPeritaje" style="display:none;">
+    <h3>PDF de Peritaje subido:</h3>
+    <div><a id="linkPDFPeritaje" href="#" download>Descargar peritaje</a></div>
+    <button id="rectificarPeritaje">Reemplazar peritaje</button>
+  </div>
+
+  <script>
+    async function initPaso4(id) {
+      // 1) Localiza solo el contenedor de cuatro
+      const contenedor = document.getElementById('cuatro');
+      if (!contenedor) return;
+
+      // 2) Busca dentro de él los elementos con sus nuevos IDs
+      const form    = contenedor.querySelector('#formArchivosPeritaje');
+      const btnNext = contenedor.querySelector('#btnNextPeritaje');
+      const btnRec  = contenedor.querySelector('#rectificarPeritaje');
+      const area    = contenedor.querySelector('#areaSubidaPeritaje');
+      const vistas  = contenedor.querySelector('#vistasPeritaje');
+      const linkP   = contenedor.querySelector('#linkPDFPeritaje');
+
+      // Comprueba que existan todas las referencias
+      if (!form || !btnNext || !btnRec || !area || !vistas || !linkP) {
+        console.error('initPaso4: algún ID falta dentro de #cuatro');
+        return;
+      }
+
+      // 3) Remueve posibles listeners anteriores clonando nodos
+      form.replaceWith(form.cloneNode(true));
+      btnNext.replaceWith(btnNext.cloneNode(true));
+      btnRec.replaceWith(btnRec.cloneNode(true));
+
+      // 4) Vuelve a tomar las referencias “limpias”
+      const cleanForm    = contenedor.querySelector('#formArchivosPeritaje');
+      const cleanBtnNext = contenedor.querySelector('#btnNextPeritaje');
+      const cleanBtnRec  = contenedor.querySelector('#rectificarPeritaje');
+
+      try {
+        // 5) Comprueba si ya hay un PDF de Peritaje en la BD
+        const res = await fetch(`/archivos/${id}/archivos/peritaje`);
+        if (!res.ok) throw new Error(`GET peritaje falló: ${res.status}`);
+        const { pdf_peritaje } = await res.json();
+
+        if (pdf_peritaje) {
+          // Mostrar vista de descarga
+          area.style.display   = 'none';
+          vistas.style.display = 'block';
+          linkP.href = `/descargas/${pdf_peritaje}`;
+        } else {
+          // Si no existe, sigue mostrando el formulario
+          area.style.display   = 'block';
+          vistas.style.display = 'none';
+        }
+
+        // 6) Listener para subir un PDF de peritaje
+        cleanForm.addEventListener('submit', async e => {
+          e.preventDefault();
+          try {
+            const data = new FormData(cleanForm);
+            const resp = await fetch(`/archivos/${id}/archivos/peritaje`, {
+              method: 'POST',
+              body: data
+            });
+            if (!resp.ok) throw new Error(`POST peritaje falló: ${resp.status}`);
+            // Si todo ok, recarga solo este paso
+            await initPaso4(id);
+            getEstado();
+          } catch (err) {
+            console.error('Error en subida de peritaje:', err);
+            alert('Error subiendo PDF de peritaje. Comprueba la consola.');
+          }
+        });
+
+        // 7) Botón “Reemplazar peritaje“ vuelve a mostrar el formulario
+        cleanBtnRec.addEventListener('click', () => {
+          vistas.style.display = 'none';
+          area.style.display   = 'block';
+        });
+
+        // 8) Botón “Siguiente paso” reutiliza tu función pasarStep()
+        pasarStep(id, cleanBtnNext);
+
+      } catch (err) {
+        console.error('Error en initPaso4:', err);
+        alert('No se pudieron cargar los archivos de peritaje. Mira la consola.');
+      }
+    }
+  </script>
       </div>
       <div id="cinco" class="bloques" hidden>
         <h1>Resolución de la tramitación</h1>
@@ -539,6 +631,7 @@ steps.forEach((step, index) => {
   initPaso1(exp.id_expediente);
   initPaso2(exp.id_expediente);
   initPaso3(exp.id_expediente);
+  initPaso4(exp.id_expediente);
   getEstado();
 };
  
@@ -693,7 +786,7 @@ function getEstado() {
 
   <!-- Script corregido -->
   <script>
-      fetch('/top.html')  // ¡Atención a la barra inicial!
+      fetch('docs/top.html')  // ¡Atención a la barra inicial!
           .then(response => {
               if (!response.ok) throw new Error('Network response was not ok');
               return response.text();
@@ -740,7 +833,7 @@ function getEstado() {
      <!-- Script corregido -->
      
      <script>
-         fetch('/bottom.html')  // ¡Atención a la barra inicial!
+         fetch('docs/pagina.html')  // ¡Atención a la barra inicial!
              .then(response => {
                  if (!response.ok) throw new Error('Network response was not ok');
                  return response.text();

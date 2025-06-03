@@ -5,7 +5,8 @@ const {
   getByExpediente,
   saveForExpediente,
   savePdfAclaracion,
-  savePdfCobertura    // ← Importa la nueva función
+  savePdfCobertura, // ← Importa la nueva función
+  savePdfPeritaje
 } = require('../models/archivoModel');
 
 const multer = require('multer');
@@ -105,6 +106,33 @@ exports.getArchivosCobertura = async (req, res) => {
     res.json({ pdf_cobertura });
   } catch (err) {
     console.error('Error en getArchivosCobertura:', err);
+    res.sendStatus(500);
+  }
+};
+
+exports.uploadArchivoPdfPeritaje = [
+  upload.single('pdf'), // solo permite el campo “pdf”
+  async (req, res) => {
+    try {
+      const pdf = req.file?.filename || null;
+      if (!pdf) {
+        return res.status(400).json({ error: 'No se ha enviado ningún archivo PDF.' });
+      }
+      await savePdfPeritaje(req.params.id, pdf);
+      res.sendStatus(201);
+    } catch (err) {
+      console.error('Error en uploadArchivoPdfPeritaje:', err);
+      res.sendStatus(500);
+    }
+  }
+];
+
+exports.getArchivosPeritaje = async (req, res) => {
+  try {
+    const { pdf_peritaje } = await getByExpediente(req.params.id);
+    res.json({ pdf_peritaje });
+  } catch (err) {
+    console.error('Error en getArchivosPeritaje:', err);
     res.sendStatus(500);
   }
 };
