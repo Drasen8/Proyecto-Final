@@ -10,4 +10,10 @@ router.post('/', expedienteCtrl.createExpediente);
 
 router.post('/:id/next',     expedienteCtrl.nextEstado);
 
+router.get('/:id', expedienteCtrl.getExpedienteById);
+
+// ── Nueva ruta para actualizar precio_perito ──
+router.post('/:id/precio-perito', expedienteCtrl.setPrecioPerito);
+
+
 module.exports = router;

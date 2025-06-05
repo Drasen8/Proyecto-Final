@@ -95,3 +95,31 @@ exports.nextEstado = (id_expediente) => {
     });
   });
 };
+
+exports.getExpedienteById = (id_expediente) => {
+  const sql = `
+    SELECT *
+      FROM Expedientes
+     WHERE id_expediente = ?
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(sql, [id_expediente], (err, rows) => {
+      if (err) return reject(err);
+      resolve(rows[0] || null);
+    });
+  });
+};
+
+exports.updatePrecioPerito = (id_expediente, precio) => {
+  const sql = `
+    UPDATE Expedientes
+       SET precio_perito = ?
+     WHERE id_expediente = ?
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(sql, [precio, id_expediente], err => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+};

@@ -367,6 +367,68 @@
     <div><a id="linkPDFPeritaje" href="#" download>Descargar peritaje</a></div>
     <button id="rectificarPeritaje">Reemplazar peritaje</button>
   </div>
+  <!-- AQUI MOSTRAMOS el precio actual (si existe) -->
+  <p>Precio publicado: <span id="precioActual">—</span> €</p>
+
+  <input type="number" id="cantidadPeritaje" placeholder="Cantidad a pagar" required>
+  <button id="btnPublicarPeritaje">Publicar cantidad</button>
+
+  <script>
+   
+
+    // ─── Inicializa el paso 3: obtiene y muestra precio_perit ───
+    async function initPaso4_1(id) {
+    const precioSpan = document.getElementById('precioActual');
+    const inputCantidad = document.getElementById('cantidadPeritaje');
+    const btnPublicar = document.getElementById('btnPublicarPeritaje');
+
+    // 1) Primero, obtenemos el precio existente (GET) y lo mostramos
+    try {
+      const res = await fetch(`/mis-expedientes/${id}`);
+      if (!res.ok) throw new Error(`GET expediente falló: ${res.status}`);
+      const data = await res.json();
+      if (data.precio_perito != null) {
+        precioSpan.textContent = data.precio_perito;
+      } else {
+        precioSpan.textContent = '—';
+      }
+    } catch (err) {
+      console.error('Error obteniendo precio_perito:', err);
+      precioSpan.textContent = '—';
+    }
+
+    // 2) Ahora, registramos el listener de click sobre el botón
+    //    (Primero, nos aseguramos de eliminar posibles listeners previos
+    //     clonando el nodo y reasignándolo)
+    const nuevoBtn = btnPublicar.cloneNode(true);
+    btnPublicar.replaceWith(nuevoBtn);
+
+    nuevoBtn.addEventListener('click', async () => {
+      const valor = parseFloat(inputCantidad.value);
+      if (isNaN(valor)) {
+        return alert('Introduce una cantidad válida.');
+      }
+
+      try {
+        const respuesta = await fetch(`/mis-expedientes/${id}/precio-perito`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ precio_perito: valor })
+        });
+        if (!respuesta.ok) {
+          const text = await respuesta.text();
+          throw new Error(`Error ${respuesta.status}: ${text}`);
+        }
+        // Refrescamos el valor mostrado tras el POST
+        await initPaso4_1(id);
+        getEstado();
+      } catch (err) {
+        console.error('Error publicando precio_perito:', err);
+        alert('No se pudo publicar la cantidad. Revisa la consola.');
+      }
+    });
+  }
+</script>
 
   <script>
     async function initPaso4(id) {
@@ -449,6 +511,7 @@
       }
     }
   </script>
+  
       </div>
       <div id="cinco" class="bloques" hidden>
         <h1>Resolución de la tramitación</h1>
@@ -472,17 +535,21 @@
     </div>
 
     <script>
-      // Seleccion de del paso 
-      
+      // Seleccion del paso creando un event listener por cada step
+      function crearAreasSeleccionables(id_estado){
+
+
       const steps = [
   document.getElementById('circuloUno'),
   document.getElementById('circuloDos'),
   document.getElementById('circuloTres'),
   document.getElementById('circuloCuatro'),
   document.getElementById('circuloCinco')
+  
 ];
-
-steps.forEach((step, index) => {
+const steps_recortado = steps.slice(0, id_estado);
+alert(`Bienvenido, ${steps_recortado.length} pasos completados.`);
+steps_recortado.forEach((step, index) => {
   step.addEventListener('click', () => {
     // Oculta todos los bloques
     const bloques = document.getElementsByClassName('bloques');
@@ -504,7 +571,7 @@ steps.forEach((step, index) => {
     step.classList.add('active');
   });
 });
-
+};
       // Al cargar la página comprobamos la sesión
       fetch('/api/session')
         .then(r => r.json())
@@ -627,11 +694,25 @@ steps.forEach((step, index) => {
     Fecha creación: ${exp.fecha_creacion}
   `;
   // Muestra el paso 1 y llama a init, pasando exp.id_expediente
+fetch('/estado-expediente')
+  .then(res => {
+    if (!res.ok) throw new Error('No hay estado');
+    return res.json();
+  })
+  .then(estado => {
+
+      
+     crearAreasSeleccionables(estado.id_estado);
+      
+  })
+  .catch(err => console.error(err));
+
   
   initPaso1(exp.id_expediente);
   initPaso2(exp.id_expediente);
   initPaso3(exp.id_expediente);
   initPaso4(exp.id_expediente);
+  initPaso4_1(exp.id_expediente);
   getEstado();
 };
  

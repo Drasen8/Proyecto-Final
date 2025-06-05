@@ -1,5 +1,6 @@
 const expedienteModel = require('../models/expedienteModel');
 
+
 exports.getExpedientesUsuario = async (req, res) => {
   const nombreUsuario = req.session.user?.nombre;
   if (!nombreUsuario) {
@@ -45,5 +46,38 @@ exports.nextEstado = async (req, res) => {
   } catch (err) {
     console.error('Error en nextEstado:', err);
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getExpedienteById = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const expediente = await expedienteModel.getExpedienteById(id);
+    if (!expediente) {
+      return res.status(404).json({ error: 'No existe ese expediente.' });
+    }
+    return res.json(expediente);
+  } catch (err) {
+    console.error('Error en getExpedienteById:', err);
+    return res.status(500).json({ error: 'Error interno al leer expediente.' });
+  }
+};
+
+exports.setPrecioPerito = async (req, res) => {
+  const id = req.params.id;
+  const { precio_perito } = req.body;
+
+  // Validación mínima
+  if (typeof precio_perito !== 'number' && isNaN(Number(precio_perito))) {
+    return res.status(400).json({ error: 'El precio debe ser un número válido.' });
+  }
+
+  try {
+    await expedienteModel.updatePrecioPerito(id, precio_perito);
+    // Devolvemos un OK y el valor actualizado
+    return res.json({ id_expediente: id, precio_perito });
+  } catch (err) {
+    console.error('Error actualizando precio_perito:', err);
+    return res.status(500).json({ error: 'Error interno al guardar el precio.' });
   }
 };
