@@ -12,10 +12,10 @@ exports.loginUser = async (req, res) => {
   
     }else{
      // Guardar el usuario en la sesión
+     console.log(user.id_usuario);
      req.session.user = {
       id: user.id_usuario,
-      nombre: user.nombre,
-      tipo: user.tipo_usuario
+      nombre: user.nombre
     };
   };
     // Redirigir a la página principal
@@ -41,5 +41,21 @@ exports.signUpUser = async (req, res) => {
   
     // Redirige con el mensaje de error visible para el usuario
     return res.redirect('/singUp?error=true');
+  }
+};
+
+exports.obtenerTipoUsuario = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
+
+    const tipo = await userModel.getTipoPorId(id);
+    // Devolvemos solo el tipo en JSON
+    res.json({ tipo });
+  } catch (error) {
+    console.error('Error en obtenerTipoUsuario:', error);
+    res.status(500).json({ error: 'Error al obtener tipo de usuario' });
   }
 };

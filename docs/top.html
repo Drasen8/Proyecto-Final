@@ -103,22 +103,41 @@
                 <img src="/img/logo.png" alt="Usuario">
           </div>
             <nav class="nav-bar">
-                <a href="#">Inicio</a>
-                <a href="#">Usuario</a>
-                <a href="#">Inicio de Sesión</a>
+                <a href="./index.html">Inicio</a>
+                <a href="./contacto.html">Contacto</a>
+                <a href="./iniciasesion.html">Inicio de Sesión</a>
             </nav>
             <div class="user-section">
                 <div class="user-info">
                     <img src="/img/descarga.png" alt="Usuario"> 
-                    <span>Nombre del Usuario</span>
+                    <span id="nombre">nombre_usuario</span>
                 </div>
                 <div class="dropdown">
-                    <a href="#">Información de la cuenta</a>
                     <a href="#" id="logout-link">Cerrar sesión</a>
                 </div>
             </div>
 
             <script>
+                let NombreUser = '';
+         fetch('/api/session')
+        .then(r => r.json())
+        .then(({ user }) => {
+          if (!user) {
+            NoUser();
+            document.getElementById('consultor-container').style.display = 'block';
+            
+
+          } else {
+            // Con sesión: guarda en una variable global o actualiza el DOM
+            NombreUser = document.getElementById('nombre');
+            NombreUser.textContent = user.nombre;
+            
+          }
+        })
+        .catch(err => {
+          console.error('Error comprobando la sesión:', err);
+          //window.location.href = '/login';
+        });
                 document.getElementById('logout-link').addEventListener('click', e => {
                   e.preventDefault();
                   fetch('/logout', {

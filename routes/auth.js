@@ -30,5 +30,7 @@ router.post('/logout', (req, res) => {
   });
 });
 
+router.get('/api/usuario/:id/tipo', authController.obtenerTipoUsuario);
+
 
 module.exports = router;

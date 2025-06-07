@@ -67,3 +67,20 @@ exports.getRegistrarUser = (nombre, contraseña, email, tipo, codigo) => {
   });
 };
 
+exports.getTipoPorId = (id_usuario) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT
+        CASE
+          WHEN EXISTS(SELECT 1 FROM Peritos WHERE id_usuario = ?) THEN 'perito'
+          WHEN EXISTS(SELECT 1 FROM Aseguradoras WHERE id_usuario = ?) THEN 'aseguradora'
+          ELSE 'desconocido'
+        END AS tipo
+    `;
+    db.query(sql, [id_usuario, id_usuario, id_usuario], (err, results) => {
+      if (err) return reject(err);
+      resolve(results[0].tipo);
+    });
+  });
+};
+

@@ -16,5 +16,6 @@ connection.connect((err) => {
     console.log('Conectado a la base de datos MySQL');
    
   });
+  connection.promise = () => connection.promise(); // asegúrate de exportar bien el wrapper
 module.exports = connection;
 

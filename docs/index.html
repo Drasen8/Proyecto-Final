@@ -27,10 +27,10 @@
       </div>
         <button type="submit">Consultar</button>
     </form>
-    <p>¿Quieres acceder como usuario? <a href="login.html">Haz login aquí</a></p>
+    <p>¿Quieres acceder como usuario? <a href="./iniciasesion.html">Haz login aquí</a></p>
 </div>
 
-<div class="consultor-container" id="creador-container">
+<div class="consultor-container" id="creador-container" >
   <h2>Consulta de expedientes</h2>
   <form id="formCrear">
       <div class="form-group">
@@ -68,6 +68,7 @@
       <p>Estado:</p>
       <div id="uno" class="bloques" hidden>
         <h2>Recepción de la declaración</h2>
+
   <div id="areaSubida">
     <form id="formArchivos">
       <label>Foto:</label>
@@ -81,11 +82,18 @@
     <h3>Archivos cargados:</h3>
     <div><a id="linkFoto"  href="#" download>Descargar foto</a></div>
     <div><a id="linkPDF"   href="#" download>Descargar PDF</a></div>
-    <button id="rectificar">Reemplazar archivos</button>
   </div>
+  <div id="botonesUno">
+  <button id="rectificar">Reemplazar archivos</button>
   <button id="nextEstado">Siguiente paso</button>
+  </div>
   <script>
+    let USUARIO_ACTUAL = null; // Variable global para el usuario actual
+    let gmailCompañia = null; // Variable para el email de contacto
+    let cantidadAPagar = null; // Variable para la cantidad a pagar
+    
   async function initPaso1(id) {
+    
   const area    = document.getElementById('areaSubida');
   const vistas  = document.getElementById('vistas');
   const form    = document.getElementById('formArchivos');
@@ -103,6 +111,8 @@
   const cleanBtnNext= document.getElementById('nextEstado');
   const cleanBtnRec = document.getElementById('rectificar');
 
+  
+
   try {
     // 1) Comprueba si ya hay archivos
     const res = await fetch(`/archivos/${id}/archivos`);
@@ -117,6 +127,20 @@
     } else {
       area.style.display   = 'block';
       vistas.style.display = 'none';
+      //Depende de user
+      if(USUARIO_ACTUAL != 'sin'){
+    area.style.display = 'none';
+    cleanBtnRec.style.display = 'none';
+  };
+  if(USUARIO_ACTUAL == 'perito'){
+    
+    cleanBtnNext.style.display = 'none';
+    area.style.display = 'none';
+    cleanBtnRec.style.display = 'none';}
+    if(USUARIO_ACTUAL != 'aseguradora'){
+
+      cleanBtnNext.style.display = 'none';
+    };
     }
 
     // 2) Subida de archivos
@@ -168,10 +192,13 @@
         <div id="vistas" style="display:none;">
           <h3>Archivos cargados:</h3>
           <div><a id="linkPDF" href="#" download>Descargar PDF</a></div>
-          <button id="rectificar">Reemplazar archivos</button>
-          <button id="btnNextAclar">Siguiente paso</button>
+          
+         
         </div>
-      
+        <div id="botonesDos">
+        <button id="rectificar">Reemplazar archivos</button>
+         <button id="btnNextAclar">Siguiente paso</button>
+      </div>
         <script>
           async function initPaso2(id) {
             // 1) Seleccionamos solo el contenedor del paso 2
@@ -215,6 +242,12 @@
               } else {
                 area.style.display   = 'block';
                 vistas.style.display = 'none';
+
+                  if(USUARIO_ACTUAL != 'aseguradora'){
+                    area.style.display = 'none';
+                    cleanBtnNext.style.display = 'none';
+                    cleanBtnRec.style.display = 'none';
+                  };
               }
       
               // 6) Listener para subir un nuevo PDF de aclaración
@@ -261,14 +294,17 @@
             <input type="file" name="pdf" accept="application/pdf" required><br>
             <button type="submit">Subir cobertura</button>
           </form>
-          <button id="btnNextCobertura">Siguiente paso</button>
+          
         </div>
         <div id="vistasCobertura" style="display:none;">
           <h3>PDF de Cobertura subido:</h3>
           <div><a id="linkPDFCobertura" href="#" download>Descargar cobertura</a></div>
-          <button id="rectificarCobertura">Reemplazar cobertura</button>
+          
         </div>
-      
+        <div id="botonesTres">
+        <button id="rectificarCobertura">Reemplazar cobertura</button>
+        <button id="btnNextCobertura">Siguiente paso</button>
+      </div>
         <script>
           async function initPaso3(id) {
             // 1) Localiza solo el contenedor de “tres”
@@ -314,6 +350,11 @@
                 // Si no existe, sigue mostrando el formulario
                 area.style.display   = 'block';
                 vistas.style.display = 'none';
+                if(USUARIO_ACTUAL != 'aseguradora'){
+                    area.style.display = 'none';
+                    cleanBtnNext.style.display = 'none';
+                    cleanBtnRec.style.display = 'none';
+                  };
               }
       
               // 6) Listener para subir un PDF de cobertura
@@ -360,18 +401,26 @@
       <input type="file" name="pdf" accept="application/pdf" required><br>
       <button type="submit">Subir peritaje</button>
     </form>
-    <button id="btnNextPeritaje">Siguiente paso</button>
+    
   </div>
   <div id="vistasPeritaje" style="display:none;">
     <h3>PDF de Peritaje subido:</h3>
     <div><a id="linkPDFPeritaje" href="#" download>Descargar peritaje</a></div>
-    <button id="rectificarPeritaje">Reemplazar peritaje</button>
+    
   </div>
+  
   <!-- AQUI MOSTRAMOS el precio actual (si existe) -->
   <p>Precio publicado: <span id="precioActual">—</span> €</p>
 
-  <input type="number" id="cantidadPeritaje" placeholder="Cantidad a pagar" required>
-  <button id="btnPublicarPeritaje">Publicar cantidad</button>
+  
+  
+  <div id="botonesCuatro">
+    <input type="number" id="cantidadPeritaje" placeholder="Cantidad a pagar" required>
+    <button id="btnPublicarPeritaje">Publicar cantidad</button>
+  <button id="rectificarPeritaje">Reemplazar peritaje</button>
+  <button id="btnNextPeritaje">Siguiente paso</button>
+</div>
+  
 
   <script>
    
@@ -402,7 +451,10 @@
     //     clonando el nodo y reasignándolo)
     const nuevoBtn = btnPublicar.cloneNode(true);
     btnPublicar.replaceWith(nuevoBtn);
-
+    if(USUARIO_ACTUAL != 'perito'){
+            nuevoBtn.style.display = 'none';
+              inputCantidad.style.display = 'none';
+            };
     nuevoBtn.addEventListener('click', async () => {
       const valor = parseFloat(inputCantidad.value);
       if (isNaN(valor)) {
@@ -475,6 +527,16 @@
           // Si no existe, sigue mostrando el formulario
           area.style.display   = 'block';
           vistas.style.display = 'none';
+          if(USUARIO_ACTUAL != 'perito'){
+                    area.style.display = 'none';
+                    
+                    cleanBtnRec.style.display = 'none';
+                  };
+          if(USUARIO_ACTUAL != 'aseguradora'){
+                  cleanBtnNext.style.display = 'none';
+          }
+                  
+          
         }
 
         // 6) Listener para subir un PDF de peritaje
@@ -515,14 +577,43 @@
       </div>
       <div id="cinco" class="bloques" hidden>
         <h1>Resolución de la tramitación</h1>
-        <select name="tipo" id="tipo">
-          <option value="" selected disabled>Selecciona un tipo de usuario</option>
-          <option value="ayuntamiento">Ayuntamiento</option>
-          <option value="aseguradora">Aseguradora</option>
-          <option value="perito">Perito</option>
-      </select>
+         <h4>Proceso Finalizado con Éxito</h4>
 
+    <p>Se han recogido todas las pruebas necesarias y se ha determinado al culpable, 
+    fallando a favor de nuestro cliente. Tras el análisis de la documentación y 
+    los informes periciales, se ha establecido que la cantidad a pagar es de 
+    <span class="highlight" id='cantidadAPagar'></span>.</p>
+
+    <p>Con esta resolución, el expediente ha quedado completamente cerrado y resuelto 
+    con éxito. Agradecemos la confianza depositada en nuestros servicios.</p>
+
+    <p class="contact">Si tienes cualquier duda o necesitas más información, por favor 
+    contáctanos en: <a href='email' id="gmailCompañia" >Email</a>.</p>
+       
       </div>
+      <script>
+      async function initPaso5(id) {
+         let cantida = document.getElementById('cantidadAPagar');
+        
+        let email = document.getElementById('gmailCompañia');
+        email.href = `${gmailCompañia}`;
+        email.textContent = `${gmailCompañia}`;
+        
+         try {
+      const res = await fetch(`/mis-expedientes/${id}`);
+      if (!res.ok) throw new Error(`GET expediente falló: ${res.status}`);
+      const data = await res.json();
+      if (data.precio_perito != null) {
+        cantida.textContent = cantidadAPagar;
+      } else {
+        cantida.textContent = 'por determinar';
+      }
+    } catch (err) {
+      console.error('Error obteniendo precio_perito:', err);
+      precioSpan.textContent = '—';
+    }
+        }
+      </script>
     </div>
   
     <!-- Barra lateral derecha con círculos -->
@@ -535,10 +626,60 @@
     </div>
 
     <script>
-      // Seleccion del paso creando un event listener por cada step
-      function crearAreasSeleccionables(id_estado){
+      
+    let idUsuario = null; // Variable global para el ID del usuario
+      let NombreUsuario = null; // Variable para el nombre del usuario
+      // Al cargar la página comprobamos la sesión
+      fetch('/api/session')
+        .then(r => r.json())
+        .then(({ user }) => {
+          if (!user) {
+            // Sin sesión: muestra el formulario de consulta
+            document.getElementById('consultor-container').style.display = 'block';
+            USUARIO_ACTUAL = 'sin'; // Usuario sin sesión
 
 
+          } else {
+            // Con sesión: guarda en una variable global o actualiza el DOM
+
+            idUsuario = user.id;
+            gmailCompañia = user.gmail;
+          }
+        })
+        .catch(err => {
+          console.error('Error comprobando la sesión:', err);
+          //window.location.href = '/login';
+        });
+
+        
+      
+     async function buscarUser() {
+  // Espera hasta que idUsuario tenga un valor (máximo 1 segundo)
+  let intentos = 0;
+  while (idUsuario === null && intentos < 20) {
+    await new Promise(resolve => setTimeout(resolve, 50)); // espera 50ms
+    intentos++;
+  }
+
+  if (!idUsuario) {
+    console.error('No se pudo obtener el idUsuario a tiempo.');
+    
+  }
+
+  try {
+    const res = await fetch(`/api/usuario/${idUsuario}/tipo`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    USUARIO_ACTUAL = data.tipo;
+    return data.tipo;
+  } catch (err) {
+    console.error('Error obteniendo tipo de usuario:', err);
+  }
+}
+
+
+      
+      function crearAreasSeleccionables(id_estado,id_expediente){
       const steps = [
   document.getElementById('circuloUno'),
   document.getElementById('circuloDos'),
@@ -547,10 +688,26 @@
   document.getElementById('circuloCinco')
   
 ];
+ const botones = [
+  document.getElementById('botonesUno'),
+  document.getElementById('botonesDos'),
+  document.getElementById('botonesTres'),
+  document.getElementById('botonesCuatro')
+  
+  
+];
+const id = id_estado - 1;
+
+const botones_recortado = botones.slice(0, id);
+console.log(id)
+botones_recortado.forEach(element => {
+    element.hidden = true;
+  });
 const steps_recortado = steps.slice(0, id_estado);
-alert(`Bienvenido, ${steps_recortado.length} pasos completados.`);
+//Aqui hay una mejora por realizar QUE PARECE SOLUCIONADA
 steps_recortado.forEach((step, index) => {
   step.addEventListener('click', () => {
+   
     // Oculta todos los bloques
     const bloques = document.getElementsByClassName('bloques');
     for (let i = 0; i < bloques.length; i++) {
@@ -572,38 +729,18 @@ steps_recortado.forEach((step, index) => {
   });
 });
 };
-      // Al cargar la página comprobamos la sesión
-      fetch('/api/session')
-        .then(r => r.json())
-        .then(({ user }) => {
-          if (!user) {
-            NoUser();
-            document.getElementById('consultor-container').style.display = 'block';
-
-          } else {
-            // Con sesión: guarda en una variable global o actualiza el DOM
-            window.CURRENT_USER = user;
-
-            console.log('Usuario logueado:', user.nombre);
-            
-          }
-        })
-        .catch(err => {
-          console.error('Error comprobando la sesión:', err);
-          //window.location.href = '/login';
-        });
+      
       </script>
 
-      <script>
-        function NoUser() {
-          // Aquí puedes manejar la lógica para redirigir al usuario a la página de inicio de sesión
-          document.getElementById('crear-expediente').style.display = 'none';
-
-        }
-      </script>
+      
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+  await buscarUser();
+
+  console.log("Tipo de usuario:", USUARIO_ACTUAL);
+
+  
     // Referencias clave
     const contenedor = document.querySelector('.expedientes-container');
     const info       = document.getElementById('info');
@@ -611,7 +748,9 @@ steps_recortado.forEach((step, index) => {
     const modal      = document.getElementById('creador-container');
     const formCrear  = document.getElementById('formCrear');
     const btnCancelar= document.getElementById('cancelarCrear');
-  
+ if (USUARIO_ACTUAL !== 'aseguradora') {
+    document.getElementById('crear-expediente').style.display = 'none';
+  }
     // Mostrar formulario de creación
     btnCrear.addEventListener('click', () => {
       modal.style.display = 'block';
@@ -678,6 +817,7 @@ steps_recortado.forEach((step, index) => {
   
   // Función de selección (fuera del DOMContentLoaded para que sea global)
   function seleccionarExpediente(exp, div) {
+    buscarUser();
   // Limpia clases
   document.querySelectorAll('.expediente').forEach(el => el.classList.remove('activo'));
   div.classList.add('activo');
@@ -702,7 +842,7 @@ fetch('/estado-expediente')
   .then(estado => {
 
       
-     crearAreasSeleccionables(estado.id_estado);
+     crearAreasSeleccionables(estado.id_estado,exp.id_expediente);
       
   })
   .catch(err => console.error(err));
@@ -713,6 +853,7 @@ fetch('/estado-expediente')
   initPaso3(exp.id_expediente);
   initPaso4(exp.id_expediente);
   initPaso4_1(exp.id_expediente);
+  initPaso5(exp.id_expediente);
   getEstado();
 };
  
@@ -801,10 +942,6 @@ fetch('/estado-expediente')
 
 
     <script>
-      // Aquí adquirimos el tipo de usuario para determinar sus permisos de modificación y estado de la solicitud
-      //switch (tipo){
-
-      //}
 function getEstado() {
       fetch('/estado-expediente')
   .then(res => {
