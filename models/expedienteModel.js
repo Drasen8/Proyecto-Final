@@ -19,7 +19,6 @@ exports.getExpedientesPorUsuario = (nombreUsuario) => {
 
 exports.createExpediente = ({ descripcion, matricula, dni_cliente }) => {
   return new Promise((resolve, reject) => {
-    // 1) Insertamos con los valores que vienen del formulario
     const sqlInsert = `
       INSERT INTO Expedientes (descripcion, matricula, dni_cliente)
       VALUES (?, ?, ?)
@@ -28,7 +27,6 @@ exports.createExpediente = ({ descripcion, matricula, dni_cliente }) => {
       if (err) return reject(err);
       const newId = result.insertId;
 
-      // 2) Recuperamos el registro completo (incluye fecha_creacion automática)
       const sqlSelect = `
         SELECT *
           FROM Expedientes
@@ -41,17 +39,57 @@ exports.createExpediente = ({ descripcion, matricula, dni_cliente }) => {
     });
   });
 };
+
+// Asociar expediente con usuario
 exports.associateUsuarioExpediente = (id_usuario, id_expediente) => {
   const sql = `
     INSERT INTO Usuarios_Expedientes (id_usuario, id_expediente)
     VALUES (?, ?)
   `;
   return new Promise((resolve, reject) => {
-    db.query(sql, [id_usuario, id_expediente], err => {
+    db.query(sql, [id_usuario, id_expediente], (err) => {
       if (err) return reject(err);
       resolve();
     });
   });
+};
+
+// Obtener id_usuario a partir de id_perito
+exports.getUsuarioIdByIdPerito = (id_perito) => {
+  const sql = `
+    SELECT id_usuario
+      FROM Peritos
+     WHERE id_perito = ?
+  `;
+  return new Promise((resolve, reject) => {
+    db.query(sql, [id_perito], (err, results) => {
+      if (err) return reject(err);
+      if (results.length === 0) return resolve(null);
+      resolve(results[0].id_usuario);
+    });
+  });
+};
+
+// Crear expediente y asociar con usuario actual y perito
+exports.crearExpedienteConPerito = async ({ descripcion, matricula, dni_cliente, id_perito }, idUsuarioActual) => {
+  try {
+    // 1) Crear expediente
+    const expediente = await exports.createExpediente({ descripcion, matricula, dni_cliente });
+
+    // 2) Asociar expediente con usuario actual
+    await exports.associateUsuarioExpediente(idUsuarioActual, expediente.id_expediente);
+
+    // 3) Obtener id_usuario del perito
+    const idUsuarioPerito = await exports.getUsuarioIdByIdPerito(id_perito);
+    if (!idUsuarioPerito) throw new Error('Perito no encontrado');
+
+    // 4) Asociar expediente con perito
+    await exports.associateUsuarioExpediente(idUsuarioPerito, expediente.id_expediente);
+
+    return expediente;
+  } catch (error) {
+    throw error;
+  }
 };
 
 exports.insertEstadoInicial = (id_expediente, id_estado = 1) => {
@@ -69,7 +107,6 @@ exports.insertEstadoInicial = (id_expediente, id_estado = 1) => {
 
 exports.nextEstado = (id_expediente) => {
   return new Promise((resolve, reject) => {
-    // 1) Obtén el último estado
     const sql0 = `
       SELECT id_estado
         FROM Expediente_Estados
@@ -79,11 +116,9 @@ exports.nextEstado = (id_expediente) => {
     `;
     db.query(sql0, [id_expediente], (err, rows) => {
       if (err) return reject(err);
-      // Si no hay ninguno, arranca en estado 1
       const actual = rows[0]?.id_estado ?? 0;
       const siguiente = actual + 1;
 
-      // 2) Inserta el nuevo estado
       const sql1 = `
         INSERT INTO Expediente_Estados (id_expediente, id_estado)
         VALUES (?, ?)

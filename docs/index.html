@@ -8,6 +8,8 @@
 <body>
     <!-- Contenedor para el header -->
   <div id="header-container"></div>
+  <div id="bottom-container">
+</div>
 
   <div class="consultor-container" id="consultor-container">
     <h2>Consulta de expedientes</h2>
@@ -46,6 +48,10 @@
         <label for="matricula">Matricula:</label>
         <input type="text" id="matricula" name="matricula" placeholder="Ingresa una matricula" required>
     </div>
+    <div class="form-group">
+      <label for="id_perito">ID Perito:</label>
+      <input type="number" id="id_perito" name="id_perito" placeholder="Ingresa el ID del perito" required>
+    </div>
       <button type="submit">Crear expediente</button>
       <button type="button" id="cancelarCrear">Cancelar</button>
   </form>
@@ -67,7 +73,7 @@
       <p id="info"></p>
       <p>Estado:</p>
       <div id="uno" class="bloques" hidden>
-        <h2>Recepción de la declaración</h2>
+        <h1>Recepción de la declaración</h1>
 
   <div id="areaSubida">
     <form id="formArchivos">
@@ -179,7 +185,7 @@
 </script>
       </div>
       <div id="dos" class="bloques" hidden>
-        <h4>Expediente con comprobación</h4>
+        <h1>Expediente con comprobación</h1>
         <div id="areaSubida">
           <form id="formArchivosAclaracion">
             <label>PDF:</label>
@@ -287,7 +293,7 @@
       </div>
       
       <div id="tres" class="bloques" hidden>
-        <h4>Cobertura de Póliza</h4>
+        <h1>Cobertura de Póliza</h1>
         <div id="areaSubidaCobertura">
           <form id="formArchivosCobertura">
             <label>PDF de Cobertura:</label><br>
@@ -394,7 +400,7 @@
       </div>
       
       <div id="cuatro" class="bloques" hidden>
-        <h4>Informe del peritaje:</h4>
+        <h1>Informe del peritaje:</h1>
   <div id="areaSubidaPeritaje">
     <form id="formArchivosPeritaje">
       <label>PDF de Peritaje:</label><br>
@@ -768,9 +774,9 @@ steps_recortado.forEach((step, index) => {
       // Asegúrate de que tus inputs tienen name="descripcion", "matricula", "dni_cliente"
       const body = {
         descripcion: formCrear.descripcion.value.trim(),
-        matricula:  formCrear.matricula.value.trim(),
-        dni_cliente: formCrear.dni_cliente.value.trim()
-        
+        matricula: formCrear.matricula.value.trim(),
+        dni_cliente: formCrear.dni_cliente.value.trim(),
+        id_perito: Number(formCrear.id_perito.value.trim())
       };
       console.log(body);
       fetch('/mis-expedientes', {
@@ -1046,7 +1052,6 @@ function getEstado() {
       }
   </script>
      <!-- Contenedor para el header -->
-     <div id="bottom-container"></div>
 
      <!-- Script corregido -->
      
@@ -1069,158 +1074,242 @@ function getEstado() {
              .catch(error => console.error('Error loading bottom:', error));
      </script>
   <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
+ /* Variables globales */
+:root {
+  --color-primary: #005f99;
+  --color-accent: #0175bd;
+  --color-bg: #f7f9fc;
+  --color-surface: #ffffff;
+  --color-border: #e1e4e8;
+  --color-text: #333333;
+  --font-base: 'Segoe UI', Roboto, Ubuntu, sans-serif;
+  --transition: 0.3s ease;
+}
 
-  #header-container {
-    height: 80px; /* Ajusta según el alto real de top.html */
-  }
+/* Reset y box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  #bottom-container {
-    height: 80px; /* Ajusta según el alto real de bottom.html */
-  }
+html, body {
+  height: 100%;
+  font-family: var(--font-base);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
 
-  .app-body {
-    display: flex;
-    height: calc(100% - 160px); /* Resta altura del header y footer */
-  }
+h1, h4{
+  color: var(--color-primary);
+}
 
-  .sidebar-left {
-    width: 200px;
-    background-color: #f5f5f5;
-    border-right: 1px solid #ccc;
-    padding: 10px;
-    overflow-y: auto;
-  }
 
-  .expedientes-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
 
-  .expediente {
-    background-color: #e0e0e0;
-    padding: 10px;
-    border: 1px solid #aaa;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    transition: background-color 0.2s;
-  }
+/* Header y footer (si lo tienes) */
+#header-container,
+#bottom-container {
+  height: 50px; /* ajusta según tu contenido */
+}
 
-  .expediente:hover {
-    background-color: #d0d0d0;
-  }
+/* Layout principal */
+.app-body {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  height: calc(100% - 160px); /* header + footer */
+  overflow: hidden;
+}
 
-  .expediente.activo {
-    background-color: #a3d977;
-    font-weight: bold;
-  }
+/* Sidebar izquierdo: lista de expedientes */
+.sidebar-left {
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: 1rem;
+  overflow-y: auto;
+}
 
-  .main-content {
-    flex: 1;
-    padding: 20px;
-    background-color: white;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
-    overflow-y: auto;
-  }
+.expedientes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
 
-  .sidebar-right {
-    top:0%;
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
+.expediente {
+  background-color: var(--color-bg);
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition), transform var(--transition);
+}
 
-  .step {
-    display: flex;
-    width: 85px;
-    height: 85px;
-    border: 2px solid black;
-    border-radius: 50%;
-    background-color: white;
-    justify-content: center; 
+.expediente:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.expediente.activo {
+  background-color: var(--color-accent);
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Contenido principal */
+.main-content {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+
+/* Sidebar derecho: pasos en círculos */
+.sidebar-right {
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: start;
+  padding: 1rem;
+  gap: 1rem;
+  background-color: var(--color-surface);
+}
+
+.step {
+  width: 70px;
+  height: 70px;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  transition: background-color var(--transition), border-color var(--transition);
+  font-size: 0.8rem;
+}
+
+.step.active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Formularios modal (consultor) */
+.consultor-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  max-width: 400px;
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: none;
+  text-align: left;
+}
+
+.consultor-container h2 {
+  margin-bottom: 1.5rem;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  transition: border-color var(--transition);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: var(--color-primary);
+  color: black;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+button:hover {
+  background-color: darken(var(--color-primary), 10%);
+}
+
+/* Link y párrafos */
+p {
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Bloques de estado: solo uno visible */
+.bloques {
+  animation: fadeIn var(--transition);
+}
+
+.bloques.active {
+  display: block;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Responsive móvil */
+@media (max-width: 768px) {
+  .app-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
   }
-
-  .step.active {
-    background-color: #b4f439;
-    border: 4px double black;
+  .sidebar-left,
+  .sidebar-right {
+    display: none;
   }
+  .main-content {
+    border: none;
+    padding: 1rem;
+  }
+}
 
-  .consultor-container {
-        
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        
-        width: 400px;
-        text-align: center;
-        position: fixed;
-        z-index: 9999; 
-        margin: 0 auto; 
-        display: none;
-    }
-    h2 {
-        margin-bottom: 20px;
-        color: #333333;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-        text-align: left;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 5px;
-        color: #555555;
-    }
-
-    input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #cccccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
-    button {
-        background-color: #007bff;
-        color: #ffffff;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        width: 100%;
-    }
-
-    button:hover {
-        background-color: #0056b3;
-    }
-
-    p {
-        margin-top: 15px;
-        color: #555555;
-    }
-
-    a {
-        color: #007bff;
-        text-decoration: none;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
 </style>
 
 </body>

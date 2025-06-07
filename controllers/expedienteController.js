@@ -21,19 +21,24 @@ exports.createExpediente = async (req, res) => {
     return res.status(401).json({ error: 'Usuario no autenticado' });
   }
   try {
-    // 1) Crear expediente con el body del formulario
-    const nuevo = await expedienteModel.createExpediente(req.body);
-    // 2) Asociar al usuario
-    await expedienteModel.associateUsuarioExpediente(idUsuario, nuevo.id_expediente);
-    // 3) Estado inicial = 1
+    const { descripcion, matricula, dni_cliente, id_perito } = req.body;
+
+    // Usar función que hace todo junto
+    const nuevo = await expedienteModel.crearExpedienteConPerito(
+      { descripcion, matricula, dni_cliente, id_perito },
+      idUsuario
+    );
+
+    // Insertar estado inicial
     await expedienteModel.insertEstadoInicial(nuevo.id_expediente, 1);
-    // 4) Devolver el objeto con id
+
     res.status(201).json(nuevo);
   } catch (err) {
     console.error('Error al crear expediente:', err);
     res.status(500).json({ error: 'No se pudo crear expediente' });
   }
 };
+
 
 // POST /expedientes/:id/next
 exports.nextEstado = async (req, res) => {

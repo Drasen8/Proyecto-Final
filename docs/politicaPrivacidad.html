@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sobre Nosotros</title>
+  <style>
+    :root {
+      --color-primary: #005f99;
+      --color-on-primary: #ffffff;
+      --color-surface: #ffffff;
+      --color-on-surface: #333333;
+      --color-border: #e1e4e8;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --font-base: 'Segoe UI', Roboto, Ubuntu, sans-serif;
+      --transition: 0.3s ease;
+    }
+
+    body {
+      font-family: var(--font-base);
+      color: var(--color-on-surface);
+      margin: 0;
+      padding: 0;
+      background-color: var(--color-surface);
+    }
+
+    .container {
+      margin: 7% auto 0;
+      padding: 2rem;
+      max-width: 800px;
+      font-family: Arial, sans-serif;
+       /* para ver si cambia el alto */
+  overflow: auto;
+        height: 105vh; /* Ajusta la altura según sea necesario */
+    }
+
+    h1, h2 {
+      color: var(--color-primary);
+    }
+
+    p, ul {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    ul li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Contenedor para el header -->
+  <div id="header-container"></div>
+
+  <div class="container">
+    <h1>Política de Privacidad</h1>
+
+    <p>En <strong>Sin Estrado</strong> respetamos tu privacidad y nos comprometemos a proteger los datos 
+    personales que nos confíes. A continuación encontrarás información sobre qué datos recogemos, 
+    cómo los usamos y qué derechos tienes.</p>
+
+    <h2>1. Datos que Recogemos</h2>
+    <ul>
+      <li><strong>Información personal:</strong> nombre, correo electrónico, teléfono.</li>
+      <li><strong>Información del expediente:</strong> datos aportados, documentos (PDF, imágenes), etc.</li>
+    </ul>
+
+    <h2>2. Finalidad del Tratamiento</h2>
+    <ul>
+      <li>Gestionar y tramitar expedientes de forma segura.</li>
+      <li>Comunicar información relevante al cliente (estado del expediente, resultados, plazos).</li>
+      <li>Cumplir con obligaciones legales y regulatorias.</li>
+    </ul>
+
+    <h2>3. Conservación de los Datos</h2>
+    <p>Los datos se conservarán mientras exista un expediente abierto y durante los plazos legales 
+    establecidos para posibles responsabilidades posteriores. Una vez cumplidos dichos plazos, 
+    procederemos a su eliminación segura.</p>
+
+    <h2>4. Derechos de los Usuarios</h2>
+    <p>Tienes derecho a ejercer gratuitamente los siguientes derechos:</p>
+    <ul>
+      <li><strong>Acceso:</strong> Solicitar una copia de los datos que tenemos sobre ti.</li>
+      <li><strong>Supresión:</strong> Solicitar la eliminación de los datos cuando ya no sean necesarios.</li>
+      <li><strong>Limitación:</strong> Solicitar la limitación del tratamiento en ciertas circunstancias.</li>
+      <li><strong>Oposición:</strong> Oponerte al tratamiento de tus datos en función de tu situación.</li>
+    </ul>
+
+    <p>Para ejercer tus derechos, puedes escribirnos a <a href="mailto:tucorreo@gmail.com">tucorreo@gmail.com</a>.</p>
+  </div>
+
+  <!-- Scripts para cargar header y footer -->
+  <script>
+    fetch('/top.html')
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.text();
+      })
+      .then(html => {
+        document.getElementById('header-container').innerHTML = html;
+        const headerScripts = document.getElementById('header-container').getElementsByTagName('script');
+        Array.from(headerScripts).forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.text = script.innerHTML;
+          document.body.appendChild(newScript).parentNode.removeChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading header:', error));
+  </script>
+
+  <div id="bottom-container"></div>
+  <script>
+    fetch('/bottom.html')
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.text();
+      })
+      .then(html => {
+        document.getElementById('bottom-container').innerHTML = html;
+        const bottomScripts = document.getElementById('bottom-container').getElementsByTagName('script');
+        Array.from(bottomScripts).forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.text = script.innerHTML;
+          document.body.appendChild(newScript).parentNode.removeChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading bottom:', error));
+  </script>
+
+</body>
+</html>

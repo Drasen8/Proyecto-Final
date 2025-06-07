@@ -5,70 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Header</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        header {
-            display: flex;
-            justify-content: space-between; /* Mantenemos esto para la estructura general */
-            align-items: center;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
-        }
-        .header-content {
-            display: flex;
-            justify-content: flex-start; /* Alinea todo a la izquierda */
-            align-items: center;
-            width: 100%; /* Ocupa todo el ancho disponible */
-            gap: 20px; /* Espacio entre elementos */
-        }
-        .logo {
-            font-size: 1.5em;
-            font-weight: bold;
-            white-space: nowrap; /* Evita que el logo se divida en varias líneas */
-        }
-        .logo img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-        }
+       /* top.css */
+    :root {
+      --color-primary: #005f99;
+      --color-on-primary: #ffffff;
+      --color-surface: #ffffff;
+      --color-on-surface: #333333;
+      --color-border: #e1e4e8;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --font-base: 'Segoe UI', Roboto, Ubuntu, sans-serif;
+      --transition: 0.2s ease;
+    }
 
-        .nav-bar {
-            display: flex;
-            gap: 20px;
-        }
-        .nav-bar a {
-            color: white;
-            text-decoration: none;
-            font-size: 1em;
-            white-space: nowrap; /* Evita que los textos se dividan */
-        }
-        .user-section {
-            position: relative;
-            display: flex; /* Cambiado a flex para mejor alineación */
-            align-items: center;
-            gap: 0px;
-            margin-left: auto; /* Empuja la sección de usuario a la derecha */
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-        .user-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        .dropdown {
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-base);
+      color: var(--color-on-surface);
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: var(--color-primary);
+      color: var(--color-on-primary);
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-md) var(--spacing-lg);
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: var(--spacing-lg);
+    }
+
+    .logo img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+
+    .nav-bar {
+      display: flex;
+      gap: var(--spacing-lg);
+    }
+
+    .nav-bar a {
+      color: var(--color-on-primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity var(--transition);
+    }
+
+    .nav-bar a:hover {
+      opacity: 0.8;
+    }
+
+    .user-section {
+      margin-left: auto;
+      position: relative;
+      /* Hace que user-section incluya el área del dropdown */
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+    }
+
+    .user-info span {
+      font-weight: 500;
+    }
+
+    /* Dropdown oculto por defecto */
+    .dropdown {
             display: none;
             position: absolute;
             top: 100%;
@@ -79,6 +103,7 @@
             border-radius: 4px;
             overflow: hidden;
             z-index: 1000;
+            align-items: center;
         }
         .dropdown a {
             display: block;
@@ -94,6 +119,19 @@
         .user-section:hover .dropdown {
             display: block;
         }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-bar {
+        display: none;
+      }
+      .header-content {
+        gap: var(--spacing-md);
+      }
+    }
+
+    
+
     </style>
 </head>
 <body>
@@ -109,7 +147,6 @@
             </nav>
             <div class="user-section">
                 <div class="user-info">
-                    <img src="/img/descarga.png" alt="Usuario"> 
                     <span id="nombre">nombre_usuario</span>
                 </div>
                 <div class="dropdown">
