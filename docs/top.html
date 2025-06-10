@@ -160,8 +160,6 @@
         .then(r => r.json())
         .then(({ user }) => {
           if (!user) {
-            NoUser();
-            document.getElementById('consultor-container').style.display = 'block';
             
 
           } else {
