@@ -27,8 +27,8 @@ exports.getRegistrarUser = (nombre, contraseña, email, tipo, codigo) => {
           return db.rollback(() => reject(new Error('El usuario ya existe.')));
         }
 
-        const insertUserSql = `INSERT INTO usuarios (nombre, contraseña, email, tipo_usuario) VALUES (?, ?, ?, ?)`;
-        db.query(insertUserSql, [nombre, contraseña, email, tipo], (err, result) => {
+        const insertUserSql = `INSERT INTO usuarios (nombre, contraseña, email) VALUES (?, ?, ?)`;
+        db.query(insertUserSql, [nombre, contraseña, email], (err, result) => {
           if (err) return db.rollback(() => reject(err));
 
           const idUsuario = result.insertId;

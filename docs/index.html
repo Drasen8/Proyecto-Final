@@ -417,12 +417,12 @@
   
   <!-- AQUI MOSTRAMOS el precio actual (si existe) -->
   <p>Precio publicado: <span id="precioActual">—</span> €</p>
-
+<input type="number" id="cantidadPeritaje" placeholder="Cantidad a pagar" required>
+    <button id="btnPublicarPeritaje">Publicar cantidad</button>
   
   
   <div id="botonesCuatro">
-    <input type="number" id="cantidadPeritaje" placeholder="Cantidad a pagar" required>
-    <button id="btnPublicarPeritaje">Publicar cantidad</button>
+    
   <button id="rectificarPeritaje">Reemplazar peritaje</button>
   <button id="btnNextPeritaje">Siguiente paso</button>
 </div>
@@ -436,12 +436,14 @@
     const precioSpan = document.getElementById('precioActual');
     const inputCantidad = document.getElementById('cantidadPeritaje');
     const btnPublicar = document.getElementById('btnPublicarPeritaje');
+    let comprobar= null;
 
     // 1) Primero, obtenemos el precio existente (GET) y lo mostramos
     try {
       const res = await fetch(`/mis-expedientes/${id}`);
       if (!res.ok) throw new Error(`GET expediente falló: ${res.status}`);
       const data = await res.json();
+      comprobar = data.precio_perito;
       if (data.precio_perito != null) {
         precioSpan.textContent = data.precio_perito;
       } else {
@@ -456,11 +458,17 @@
     //    (Primero, nos aseguramos de eliminar posibles listeners previos
     //     clonando el nodo y reasignándolo)
     const nuevoBtn = btnPublicar.cloneNode(true);
-    btnPublicar.replaceWith(nuevoBtn);
+    btnPublicar.replaceWith(nuevoBtn); console.log(comprobar);
+    if (comprobar != null) {
+              nuevoBtn.style.display = 'none';
+              inputCantidad.style.display = 'none';
+    }
     if(USUARIO_ACTUAL != 'perito'){
             nuevoBtn.style.display = 'none';
               inputCantidad.style.display = 'none';
+
             };
+          
     nuevoBtn.addEventListener('click', async () => {
       const valor = parseFloat(inputCantidad.value);
       if (isNaN(valor)) {
@@ -588,31 +596,30 @@
     <p>Se han recogido todas las pruebas necesarias y se ha determinado al culpable, 
     fallando a favor de nuestro cliente. Tras el análisis de la documentación y 
     los informes periciales, se ha establecido que la cantidad a pagar es de 
-    <span class="highlight" id='cantidadAPagar'></span>.</p>
+    <span class="highlight" id='cantidadAPagar'></span> €.</p>
 
     <p>Con esta resolución, el expediente ha quedado completamente cerrado y resuelto 
     con éxito. Agradecemos la confianza depositada en nuestros servicios.</p>
 
     <p class="contact">Si tienes cualquier duda o necesitas más información, por favor 
-    contáctanos en: <a href='email' id="gmailCompañia" >Email</a>.</p>
+    contáctanos en:  sendra.marc5256@gmail.com.</p>
        
       </div>
       <script>
       async function initPaso5(id) {
          let cantida = document.getElementById('cantidadAPagar');
         
-        let email = document.getElementById('gmailCompañia');
-        email.href = `${gmailCompañia}`;
-        email.textContent = `${gmailCompañia}`;
+        
+        console.log()
         
          try {
       const res = await fetch(`/mis-expedientes/${id}`);
       if (!res.ok) throw new Error(`GET expediente falló: ${res.status}`);
       const data = await res.json();
       if (data.precio_perito != null) {
-        cantida.textContent = cantidadAPagar;
+        cantida.textContent = data.precio_perito;
       } else {
-        cantida.textContent = 'por determinar';
+        cantida.textContent = '—';
       }
     } catch (err) {
       console.error('Error obteniendo precio_perito:', err);
@@ -757,6 +764,9 @@ steps_recortado.forEach((step, index) => {
  if (USUARIO_ACTUAL !== 'aseguradora') {
     document.getElementById('crear-expediente').style.display = 'none';
   }
+  if (USUARIO_ACTUAL === 'aseguradora' || activa == 0) {
+    console.error('Cuenta no activa');
+  };
     // Mostrar formulario de creación
     btnCrear.addEventListener('click', () => {
       modal.style.display = 'block';
