@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- Contenedor para el header -->
+  <div id="header-container"></div>
+  
+  <div id="bottom-container"></div>
+
+ 
+
+
+
+
+
+<div class="app-body">
+    <!-- Barra lateral izquierda (con contenido rotado) -->
+    <div class="sidebar-left">
+        <div class="aseguradoras-container">
+
+        </div>
+      </div>
+      
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <h1>Informacion sobre las Aseguradoras:</h1>
+      <p id="info"></p>
+      <button id="activar-btn" style="display:none;">Activar Aseguradora</button>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const { user } = await fetch('/api/session').then(r => r.json());
+  if (!user) 
+  user.nombre;
+// activa === 1 => cuenta activa
+// activa === 0 => inactiva
+// activa === null => no es aseguradora
+if(user.nombre != "admin"){
+  window.location.href = '/';
+}
+});
+
+  let currentExp = null; // guardará la aseguradora seleccionada
+
+  // Tu función existente:
+  async function toggleActiva(exp, nuevoValor) {
+    const resp = await fetch(`/aseguradoras/${exp.id_aseguradora}/activa`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activa: nuevoValor })
+    });
+    const resultado = await resp.json();
+    if (resultado.ok) {
+      alert(`Aseguradora ${resultado.id_aseguradora} ahora activa=${resultado.activa}`);
+      // Actualizar texto en pantalla
+      document.getElementById('info').innerHTML += `<br>Activa: ${resultado.activa}`;
+    } else {
+      console.error(resultado.error);
+    }
+  }
+
+  // Tu selección de aseguradora, modificada para mostrar el botón:
+  function seleccionarAseguradoras(exp, div) {
+    // Marca active
+    document.querySelectorAll('.aseguradora').forEach(el => el.classList.remove('activo'));
+    div.classList.add('activo');
+
+    // Guarda la exp en variable global
+    currentExp = exp;
+
+    // Rellena info
+    document.getElementById('info').innerHTML = `
+      ID: ${exp.id_aseguradora}<br>
+      Id_usuario: ${exp.id_usuario}<br>
+      NIF: ${exp.nif}<br>
+      Activa: ${exp.activa}<br>
+    `;
+
+    // Muestra el botón solo si está inactiva
+    const btn = document.getElementById('activar-btn');
+    if (exp.activa === 0) {
+      btn.style.display = 'inline-block';
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+
+  // Listener para el botón
+  document.getElementById('activar-btn').addEventListener('click', () => {
+    if (currentExp) {
+      toggleActiva(currentExp, 1);
+    }
+  });
+
+  // Resto de tu código de carga inicial
+  const contenedor = document.querySelector('.aseguradoras-container');
+  fetch('/mis-aseguradoras')
+    .then(r => r.ok ? r.json() : Promise.reject('Error cargando'))
+    .then(data => {
+      data.forEach(exp => {
+        const div = document.createElement('div');
+        div.className = 'aseguradora';
+        div.textContent = exp.id_aseguradora;
+        div.addEventListener('click', () => seleccionarAseguradoras(exp, div));
+        contenedor.appendChild(div);
+      });
+    });
+</script>
+
+  <!-- Scripts para cargar header y footer -->
+  <script>
+    fetch('/top.html')
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.text();
+      })
+      .then(html => {
+        document.getElementById('header-container').innerHTML = html;
+        const headerScripts = document.getElementById('header-container').getElementsByTagName('script');
+        Array.from(headerScripts).forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.text = script.innerHTML;
+          document.body.appendChild(newScript).parentNode.removeChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading header:', error));
+  </script>
+
+  <script>
+    fetch('/bottom.html')
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.text();
+      })
+      .then(html => {
+        document.getElementById('bottom-container').innerHTML = html;
+        const bottomScripts = document.getElementById('bottom-container').getElementsByTagName('script');
+        Array.from(bottomScripts).forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.text = script.innerHTML;
+          document.body.appendChild(newScript).parentNode.removeChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading bottom:', error));
+  </script>
+
+   <style>
+ /* Variables globales */
+:root {
+  --color-primary: #005f99;
+  --color-accent: #0175bd;
+  --color-bg: #f7f9fc;
+  --color-surface: #ffffff;
+  --color-border: #e1e4e8;
+  --color-text: #333333;
+  --font-base: 'Segoe UI', Roboto, Ubuntu, sans-serif;
+  --transition: 0.3s ease;
+}
+
+/* Reset y box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-base);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* toda la ventana */
+}
+
+h1, h4{
+  color: var(--color-primary);
+}
+
+
+
+/* Header y footer (si lo tienes) */
+#header-container,
+#bottom-container {
+  height: 50px; /* ajusta según tu contenido */
+}
+
+/* Layout principal */
+.app-body {
+   display: grid;
+  grid-template-columns: 200px 1fr; /* solo sidebar + main */
+  height: calc(100% - 160px);
+  overflow: hidden;
+}
+
+/* Sidebar izquierdo: lista de aseguradoras */
+.sidebar-left {
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.aseguradoras-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.aseguradora {
+  background-color: var(--color-bg);
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.aseguradora:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.aseguradora.activo {
+  background-color: var(--color-accent);
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Contenido principal */
+.main-content {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+
+/* Sidebar derecho: pasos en círculos */
+.sidebar-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  padding: 1rem;
+  gap: 1rem;
+  background-color: var(--color-surface);
+}
+
+.step {
+  width: 70px;
+  height: 70px;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  transition: background-color var(--transition), border-color var(--transition);
+  font-size: 0.8rem;
+}
+
+.step.active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Formularios modal (consultor) */
+.consultor-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  max-width: 400px;
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: none;
+  text-align: left;
+}
+
+.consultor-container h2 {
+  margin-bottom: 1.5rem;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  transition: border-color var(--transition);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: var(--color-primary);
+  color: black;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+button:hover {
+  background-color: darken(var(--color-primary), 10%);
+}
+
+/* Link y párrafos */
+p {
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Bloques de estado: solo uno visible */
+.bloques {
+  animation: fadeIn var(--transition);
+}
+
+.bloques.active {
+  display: block;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Responsive móvil */
+@media (max-width: 768px) {
+  .app-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+  .sidebar-left,
+  .sidebar-right {
+    display: none;
+  }
+  .main-content {
+    border: none;
+    padding: 1rem;
+  }
+}
+
+</style>
+
+</body>
+</html>

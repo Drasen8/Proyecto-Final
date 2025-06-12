@@ -44,6 +44,10 @@ app.get('/singUp', (req, res) => {
   res.sendFile(path.join(__dirname, 'docs', 'registro.html'));
 });
 
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'docs', 'admin.html'));
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'docs', 'index.html'));
 });

@@ -751,7 +751,23 @@ steps_recortado.forEach((step, index) => {
   document.addEventListener('DOMContentLoaded', async () => {
   await buscarUser();
 
-  console.log("Tipo de usuario:", USUARIO_ACTUAL);
+  const resp = await fetch('/api/aseguradora/activa');
+const { activa } = await resp.json();
+const { user } = await fetch('/api/session').then(r => r.json());
+  if (!user) return;
+  user.nombre;
+// activa === 1 => cuenta activa
+// activa === 0 => inactiva
+// activa === null => no es aseguradora
+
+if (activa === 0  && user.nombre != "admin") {
+  console.error('Cuenta de aseguradora no activa');
+  alert('Tu cuenta está inactiva. Contacta con el administrador. sendra.marc5256@gmail.com');
+  window.location.href = './admin.html'; // Redirige a la página de administración
+}
+if(user.nombre == "admin"){
+  window.location.href = '/admin';
+}
 
   
     // Referencias clave
@@ -764,7 +780,7 @@ steps_recortado.forEach((step, index) => {
  if (USUARIO_ACTUAL !== 'aseguradora') {
     document.getElementById('crear-expediente').style.display = 'none';
   }
-  if (USUARIO_ACTUAL === 'aseguradora' || activa == 0) {
+  if (USUARIO_ACTUAL === 'aseguradora' || activa == 0 || user.id != "admin") {
     console.error('Cuenta no activa');
   };
     // Mostrar formulario de creación
@@ -788,7 +804,7 @@ steps_recortado.forEach((step, index) => {
         dni_cliente: formCrear.dni_cliente.value.trim(),
         id_perito: Number(formCrear.id_perito.value.trim())
       };
-      console.log(body);
+      
       fetch('/mis-expedientes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

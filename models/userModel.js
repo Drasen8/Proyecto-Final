@@ -84,3 +84,51 @@ exports.getTipoPorId = (id_usuario) => {
   });
 };
 
+exports.getActivaPorId = (id_usuario) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT activa
+      FROM Aseguradoras
+      WHERE id_usuario = ?
+    `;
+    db.query(sql, [id_usuario], (err, results) => {
+      if (err) return reject(err);
+      // Si no hay fila, no es aseguradora => null
+      if (results.length === 0) return resolve(null);
+      resolve(results[0].activa); // 0 o 1
+    });
+  });
+};
+
+exports.getAllAseguradoras = () => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT 
+        id_aseguradora, 
+        id_usuario, 
+        nif, 
+        activa
+      FROM Aseguradoras
+    `;
+    db.query(sql, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
+
+exports.updateActiva = (id_aseguradora, nuevaActiva) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      UPDATE Aseguradoras
+      SET activa = ?
+      WHERE id_aseguradora = ?
+    `;
+    db.query(sql, [nuevaActiva, id_aseguradora], (err, result) => {
+      if (err) return reject(err);
+      // result.affectedRows === 1 si encontró y actualizó
+      resolve(result.affectedRows);
+    });
+  });
+};
+

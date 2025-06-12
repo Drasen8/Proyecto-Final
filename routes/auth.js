@@ -32,5 +32,11 @@ router.post('/logout', (req, res) => {
 
 router.get('/api/usuario/:id/tipo', authController.obtenerTipoUsuario);
 
+router.get('/api/aseguradora/activa', authController.obtenerActiva);
+
+router.get('/mis-aseguradoras', authController.misAseguradoras);
+
+router.post('/aseguradoras/:id/activa',authController.actualizarActiva);
+
 
 module.exports = router;
