@@ -1,11 +1,11 @@
 const consultaModel = require('../models/consultaModel');
 
 exports.buscarExpediente = async (req, res) => {
-  const { numExpediente, dni, matricula } = req.body;
+  const { numExpediente, dni, matricula, contraseña } = req.body;
 
   try {
     const expediente = await consultaModel.getExpedienteByParams(
-      numExpediente, dni, matricula
+      numExpediente, dni, matricula, contraseña
     );
 
     if (!expediente) {

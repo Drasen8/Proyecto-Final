@@ -27,13 +27,19 @@
           <label for="matricula">Matricula:</label>
           <input type="text" id="matricula" name="matricula" placeholder="Ingresa tu matricula" required>
       </div>
+
+      <div class="form-group" >
+          <label for="contraseña">Contraseña:</label>
+          <input type="text" id="contraseña" name="contraseña" placeholder="Ingresa tu contraseña" required>
+      </div>
+      
         <button type="submit">Consultar</button>
     </form>
     <p>¿Quieres acceder como usuario? <a href="./iniciasesion.html">Haz login aquí</a></p>
 </div>
 
 <div class="consultor-container" id="creador-container" >
-  <h2>Consulta de expedientes</h2>
+  <h2>Creación de expedientes</h2>
   <form id="formCrear">
       <div class="form-group">
           <div id="error"></div>
@@ -63,7 +69,7 @@
     <!-- Barra lateral izquierda (con contenido rotado) -->
     <div class="sidebar-left">
         <div class="expedientes-container">
-          <div class="expediente nuevo" id="crear-expediente">+ Crear nuevo expediente</div>
+          <div class="expediente nuevo" id="crear-expediente" style="display: none;">+ Crear nuevo expediente</div>
         </div>
       </div>
       
@@ -458,7 +464,7 @@
     //    (Primero, nos aseguramos de eliminar posibles listeners previos
     //     clonando el nodo y reasignándolo)
     const nuevoBtn = btnPublicar.cloneNode(true);
-    btnPublicar.replaceWith(nuevoBtn); console.log(comprobar);
+    btnPublicar.replaceWith(nuevoBtn); 
     if (comprobar != null) {
               nuevoBtn.style.display = 'none';
               inputCantidad.style.display = 'none';
@@ -610,7 +616,6 @@
          let cantida = document.getElementById('cantidadAPagar');
         
         
-        console.log()
         
          try {
       const res = await fetch(`/mis-expedientes/${id}`);
@@ -712,7 +717,6 @@
 const id = id_estado - 1;
 
 const botones_recortado = botones.slice(0, id);
-console.log(id)
 botones_recortado.forEach(element => {
     element.hidden = true;
   });
@@ -763,7 +767,7 @@ const { user } = await fetch('/api/session').then(r => r.json());
 if (activa === 0  && user.nombre != "admin") {
   console.error('Cuenta de aseguradora no activa');
   alert('Tu cuenta está inactiva. Contacta con el administrador. sendra.marc5256@gmail.com');
-  window.location.href = './admin.html'; // Redirige a la página de administración
+  window.location.href = '/login';
 }
 if(user.nombre == "admin"){
   window.location.href = '/admin';
@@ -777,9 +781,11 @@ if(user.nombre == "admin"){
     const modal      = document.getElementById('creador-container');
     const formCrear  = document.getElementById('formCrear');
     const btnCancelar= document.getElementById('cancelarCrear');
- if (USUARIO_ACTUAL !== 'aseguradora') {
-    document.getElementById('crear-expediente').style.display = 'none';
+    console.log(`Usuario actual: ${USUARIO_ACTUAL}`);
+ if (USUARIO_ACTUAL === 'aseguradora') {
+    document.getElementById('crear-expediente').style.display = 'block';
   }
+  
   if (USUARIO_ACTUAL === 'aseguradora' || activa == 0 || user.id != "admin") {
     console.error('Cuenta no activa');
   };
@@ -804,7 +810,6 @@ if(user.nombre == "admin"){
         dni_cliente: formCrear.dni_cliente.value.trim(),
         id_perito: Number(formCrear.id_perito.value.trim())
       };
-      
       fetch('/mis-expedientes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -857,13 +862,19 @@ if(user.nombre == "admin"){
   // Guarda cookie
   document.cookie = `id_expediente=${exp.id_expediente}; path=/; max-age=${60*60}`;
 
+  let contrasenaHTML = '';
+  console.log(USUARIO_ACTUAL);
+if (USUARIO_ACTUAL === 'aseguradora') {
+  contrasenaHTML = `Contraseña: ${exp.contraseña}<br>`;
+}
   // Rellena info usando la variable correcta: exp
   document.getElementById('info').innerHTML = `
     ID: ${exp.id_expediente}<br>
     Descripción: ${exp.descripcion}<br>
     Matrícula: ${exp.matricula}<br>
     DNI cliente: ${exp.dni_cliente}<br>
-    Fecha creación: ${exp.fecha_creacion}
+    Fecha creación: ${exp.fecha_creacion}<br>
+    ${contrasenaHTML}
   `;
   // Muestra el paso 1 y llama a init, pasando exp.id_expediente
 fetch('/estado-expediente')
@@ -905,6 +916,7 @@ fetch('/estado-expediente')
     const numExp = document.getElementById('numExpediente').value.trim();
     const dni    = document.getElementById('dni').value.trim();
     const mat    = document.getElementById('matricula').value.trim();
+    const contra = document.getElementById('contraseña').value.trim();
 
     fetch('/consulta-expediente', {
       method: 'POST',
@@ -912,7 +924,8 @@ fetch('/estado-expediente')
       body: JSON.stringify({
         numExpediente: numExp,
         dni: dni,
-        matricula: mat
+        matricula: mat,
+        contraseña: contra
       })
     })
     .then(res => {
@@ -941,6 +954,7 @@ fetch('/estado-expediente')
         <p><strong>Matrícula:</strong> ${exp.matricula}</p>
         <p><strong>DNI Cliente:</strong> ${exp.dni_cliente}</p>
         <p><strong>Fecha Creación:</strong> ${exp.fecha_creacion}</p>
+
       `;
       document.getElementById('consultor-container').style.display = 'none';
       
@@ -1062,9 +1076,7 @@ function getEstado() {
               method: 'POST',
               credentials: 'same-origin'       // <— incluye la cookie de sesión
             });
-            console.log('nextEstado response status:', resp.status);
             const text = await resp.text();
-            console.log('nextEstado response body:', text);
             if (!resp.ok) {
               throw new Error(`Error ${resp.status}: ${text}`);
             }

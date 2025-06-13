@@ -17,13 +17,13 @@ exports.getExpedientesPorUsuario = (nombreUsuario) => {
   });
 };
 
-exports.createExpediente = ({ descripcion, matricula, dni_cliente }) => {
+exports.createExpediente = ({ descripcion, matricula, dni_cliente ,contrasena }) => {
   return new Promise((resolve, reject) => {
     const sqlInsert = `
-      INSERT INTO Expedientes (descripcion, matricula, dni_cliente)
-      VALUES (?, ?, ?)
+      INSERT INTO Expedientes (descripcion, matricula, dni_cliente, contraseña)
+      VALUES (?, ?, ?, ?)
     `;
-    db.query(sqlInsert, [descripcion, matricula, dni_cliente], (err, result) => {
+    db.query(sqlInsert, [descripcion, matricula, dni_cliente, contrasena], (err, result) => {
       if (err) return reject(err);
       const newId = result.insertId;
 
@@ -70,17 +70,27 @@ exports.getUsuarioIdByIdPerito = (id_perito) => {
   });
 };
 
+
+
 // Crear expediente y asociar con usuario actual y perito
 exports.crearExpedienteConPerito = async ({ descripcion, matricula, dni_cliente, id_perito }, idUsuarioActual) => {
   try {
+//Generamos contraseña aleatoria
+    const generarContrasena = () => {
+  return Math.random().toString(36).slice(-8); // 8 caracteres aleatorios
+};
+
+const contrasenaAleatoria = generarContrasena();
     // 1) Crear expediente
-    const expediente = await exports.createExpediente({ descripcion, matricula, dni_cliente });
+    const expediente = await exports.createExpediente({ descripcion, matricula, dni_cliente, contrasena: contrasenaAleatoria });
 
     // 2) Asociar expediente con usuario actual
     await exports.associateUsuarioExpediente(idUsuarioActual, expediente.id_expediente);
 
     // 3) Obtener id_usuario del perito
+    console.log('idUsuarioPerito:', id_perito);
     const idUsuarioPerito = await exports.getUsuarioIdByIdPerito(id_perito);
+    console.log('idUsuarioPerito:', idUsuarioPerito);
     if (!idUsuarioPerito) throw new Error('Perito no encontrado');
 
     // 4) Asociar expediente con perito

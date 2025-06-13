@@ -1,6 +1,6 @@
 const db = require('../models/db');
 
-exports.getExpedienteByParams = (id, dni, matricula) => {
+exports.getExpedienteByParams = (id, dni, matricula, contraseña) => {
   const sql = `
     SELECT 
   e.*, 
@@ -28,11 +28,12 @@ WHERE
   e.id_expediente = ? 
   AND e.dni_cliente = ? 
   AND e.matricula   = ?
+  AND e.contraseña = ?
 ;
 
   `;
   return new Promise((resolve, reject) => {
-    db.query(sql, [id, dni, matricula], (err, results) => {
+    db.query(sql, [id, dni, matricula, contraseña], (err, results) => {
       if (err) return reject(err);
       resolve(results[0] || null);
     });

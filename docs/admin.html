@@ -34,14 +34,11 @@
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
     const { user } = await fetch('/api/session').then(r => r.json());
-  if (!user) 
-  user.nombre;
-// activa === 1 => cuenta activa
-// activa === 0 => inactiva
-// activa === null => no es aseguradora
-if(user.nombre != "admin"){
-  window.location.href = '/';
-}
+  
+  if (!user || user.nombre !== "admin") {
+    window.location.href = '/';
+    return;
+  }
 });
 
   let currentExp = null; // guardará la aseguradora seleccionada
