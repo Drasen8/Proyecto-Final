@@ -1,0 +1,56 @@
+:root {
+      --color-primary: #005f99;
+      --color-on-primary: #ffffff;
+      --color-surface: #ffffff;
+      --color-on-surface: #333333;
+      --color-border: #e1e4e8;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --font-base: 'Segoe UI', Roboto, Ubuntu, sans-serif;
+      --transition: 0.3s ease;
+    }
+    .pagina-contacto {
+      margin: 10% auto 0;
+      padding: 2rem;
+      max-width: 800px;
+      font-family: Arial, sans-serif;
+    }
+@media (max-width: 768px) {
+  html, body {
+      height: 130%;
+      overflow-y: auto; /* Habilita scroll vertical */
+    }
+    .pagina-contacto {
+    margin-top: 5rem;
+  }
+  }
+    
+
+    body {
+      font-family: var(--font-base);
+      color: var(--color-on-surface);
+      margin: 0;
+      padding: 0;
+      background-color: var(--color-surface);
+    }
+
+    
+
+    h1, h2 {
+      color: var(--color-primary);
+    }
+
+    p, ul {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    ul li {
+      margin-bottom: 0.5rem;
+    }

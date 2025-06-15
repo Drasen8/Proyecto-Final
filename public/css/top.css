@@ -1,0 +1,150 @@
+    :root {
+      --color-primary: #005f99;
+      --color-on-primary: #ffffff;
+      --color-surface: #ffffff;
+      --color-on-surface: #333333;
+      --color-border: #e1e4e8;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --font-base: 'Segoe UI', Roboto, Ubuntu, sans-serif;
+      --transition: 0.2s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-base);
+      color: var(--color-on-surface);
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: var(--color-primary);
+      color: var(--color-on-primary);
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-md) var(--spacing-lg);
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: var(--spacing-lg);
+    }
+
+    .logo img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+
+    .nav-bar {
+      display: flex;
+      gap: var(--spacing-lg);
+    }
+
+    .nav-bar a {
+      color: var(--color-on-primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity var(--transition);
+    }
+
+    .nav-bar a:hover {
+      opacity: 0.8;
+    }
+
+    .user-section {
+      margin-left: auto;
+      position: relative;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+    }
+
+    .user-info span {
+      font-weight: 500;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: white;
+      color: black;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 10px 20px;
+      text-decoration: none;
+      color: black;
+      font-size: 0.9em;
+    }
+
+    .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .user-section:hover .dropdown {
+      display: block;
+    }
+
+    /* Botón hamburguesa */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .menu-toggle div {
+      width: 25px;
+      height: 3px;
+      background-color: white;
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: flex;
+      }
+
+      .nav-bar {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        flex-direction: column;
+        background-color: var(--color-primary);
+        padding: var(--spacing-md);
+      }
+
+      .nav-bar.show {
+        display: flex;
+      }
+
+      .header-content {
+        gap: var(--spacing-md);
+      }
+    }

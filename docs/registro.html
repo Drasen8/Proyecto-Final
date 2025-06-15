@@ -54,11 +54,10 @@
                 <div class="form-group">
                     <select name="tipo" id="tipo">
                         <option value="" selected disabled>Selecciona un tipo de usuario</option>
-                        <option value="ayuntamiento">Ayuntamiento</option>
                         <option value="aseguradora">Aseguradora</option>
                         <option value="perito">Perito</option>
                     </select>
-                    <div id="espercial">
+                    <div id="especial">
 
 
                     </div>
@@ -71,7 +70,7 @@
             const params = new URLSearchParams(window.location.search);
             if (params.get('error') === 'true') {
                 const selectTipo = document.getElementById('error');
-                selectTipo.innerHTML = `<p style="color: red;">Nombre, email, numero colegiado, codigo municipal o NIF ya registrados </p>`;
+                selectTipo.innerHTML = `<p style="color: red;">Nombre, email, numero colegiado o NIF ya registrados </p>`;
             }
           </script>
         <!-- Contenedor para el header -->
@@ -99,12 +98,10 @@
         </script>
         <script>
             const selectTipo = document.getElementById('tipo');
-            const especialDiv = document.getElementById('espercial');
+            const especialDiv = document.getElementById('especial');
 
             selectTipo.addEventListener('change', function() {
-                if (this.value === 'aseguradora') {
-                    especialDiv.innerHTML = '<br><input type="text" id="codigo" name="codigo" placeholder="Ingrese su NIF">';
-                } else if (this.value === 'perito') {
+                if (this.value === 'perito') {
                     especialDiv.innerHTML = '<br><input type="text" id="codigo" name="codigo" placeholder="Ingrese su numero de colegiado">';
                 }
                 else {
@@ -199,6 +196,12 @@
     a:hover {
         text-decoration: underline;
     }
+
+    @media (max-width: 768px) {
+  .login-container {
+    margin-top: 8rem;
+  }
+}
 
 </style>
 </html>

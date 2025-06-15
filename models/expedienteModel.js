@@ -88,9 +88,7 @@ const contrasenaAleatoria = generarContrasena();
     await exports.associateUsuarioExpediente(idUsuarioActual, expediente.id_expediente);
 
     // 3) Obtener id_usuario del perito
-    console.log('idUsuarioPerito:', id_perito);
     const idUsuarioPerito = await exports.getUsuarioIdByIdPerito(id_perito);
-    console.log('idUsuarioPerito:', idUsuarioPerito);
     if (!idUsuarioPerito) throw new Error('Perito no encontrado');
 
     // 4) Asociar expediente con perito

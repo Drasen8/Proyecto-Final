@@ -5,6 +5,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const cors = require('cors');
 
+app.use(express.static('public'));
 
 // Configuración CORS (usa solo una de estas opciones)
 app.use(cors({
@@ -43,6 +44,13 @@ app.get('/login', (req, res) => {
 app.get('/singUp', (req, res) => {
   res.sendFile(path.join(__dirname, 'docs', 'registro.html'));
 });
+
+function soloAdmin(req, res, next) {
+  if (!req.session.user || req.session.user.nombre !== 'admin') {
+    return res.redirect('/');
+  }
+  next();
+}
 
 app.get('/admin', soloAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'docs', 'admin.html'));

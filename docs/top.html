@@ -1,197 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Header</title>
-    <style>
-       /* top.css */
-    :root {
-      --color-primary: #005f99;
-      --color-on-primary: #ffffff;
-      --color-surface: #ffffff;
-      --color-on-surface: #333333;
-      --color-border: #e1e4e8;
-      --spacing-sm: 0.5rem;
-      --spacing-md: 1rem;
-      --spacing-lg: 1.5rem;
-      --font-base: 'Segoe UI', Roboto, Ubuntu, sans-serif;
-      --transition: 0.2s ease;
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: var(--font-base);
-      color: var(--color-on-surface);
-    }
-
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background-color: var(--color-primary);
-      color: var(--color-on-primary);
-      display: flex;
-      align-items: center;
-      padding: var(--spacing-md) var(--spacing-lg);
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .header-content {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      gap: var(--spacing-lg);
-    }
-
-    .logo img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-    }
-
-    .nav-bar {
-      display: flex;
-      gap: var(--spacing-lg);
-    }
-
-    .nav-bar a {
-      color: var(--color-on-primary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: opacity var(--transition);
-    }
-
-    .nav-bar a:hover {
-      opacity: 0.8;
-    }
-
-    .user-section {
-      margin-left: auto;
-      position: relative;
-      /* Hace que user-section incluya el área del dropdown */
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      cursor: pointer;
-    }
-
-    .user-info span {
-      font-weight: 500;
-    }
-
-    /* Dropdown oculto por defecto */
-    .dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            color: black;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            z-index: 1000;
-            align-items: center;
-        }
-        .dropdown a {
-            display: block;
-            padding: 10px 20px;
-            text-decoration: none;
-            color: black;
-            font-size: 0.9em;
-        }
-        .dropdown a:hover {
-            background-color: #f0f0f0;
-            display: block;
-        }
-        .user-section:hover .dropdown {
-            display: block;
-        }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .nav-bar {
-        display: none;
-      }
-      .header-content {
-        gap: var(--spacing-md);
-      }
-    }
-
-    
-
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./css/top.css">
+  <title>Header</title>
+  
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo">
-                <img src="/img/logo.png" alt="Usuario">
-          </div>
-            <nav class="nav-bar">
-                <a href="./index.html">Inicio</a>
-                <a href="./contacto.html">Contacto</a>
-                <a href="./iniciasesion.html">Inicio de Sesión</a>
-            </nav>
-            <div class="user-section">
-                <div class="user-info">
-                    <span id="nombre">nombre_usuario</span>
-                </div>
-                <div class="dropdown">
-                    <a href="#" id="logout-link">Cerrar sesión</a>
-                </div>
-            </div>
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <img src="/img/logo.png" alt="Usuario" />
+      </div>
 
-            <script>
-                let NombreUser = '';
-         fetch('/api/session')
-        .then(r => r.json())
-        .then(({ user }) => {
-          if (!user) {
-            
+      <!-- Botón hamburguesa -->
+      <div class="menu-toggle" id="menu-toggle">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
 
-          } else {
-            // Con sesión: guarda en una variable global o actualiza el DOM
-            NombreUser = document.getElementById('nombre');
-            NombreUser.textContent = user.nombre;
-            
-          }
+      <!-- Navegación -->
+      <nav class="nav-bar" id="nav-bar">
+        <a href="./index.html">Inicio</a>
+        <a href="./contacto.html">Contacto</a>
+        <a href="./iniciasesion.html">Inicio de Sesión</a>
+        <a href="./registro.html">Registro</a>
+      </nav>
+
+      <!-- Usuario -->
+      <div class="user-section">
+        <div class="user-info">
+           <span id="id">id</span>
+          <span id="nombre">nombre_usuario</span>
+        </div>
+        <div class="dropdown">
+          <a href="#" id="logout-link">Cerrar sesión</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <script>
+    // Toggle del menú responsive
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('nav-bar').classList.toggle('show');
+    });
+
+    // Comprobación de sesión
+    fetch('/api/session')
+      .then(r => r.json())
+      .then(({ user }) => {
+        if (user) {
+          document.getElementById('nombre').textContent = user.nombre;
+          document.getElementById('id').textContent = user.id;
+        }
+      })
+      .catch(err => {
+        console.error('Error comprobando la sesión:', err);
+      });
+
+    // Logout
+    document.getElementById('logout-link').addEventListener('click', e => {
+      e.preventDefault();
+      fetch('/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Error cerrando sesión');
+          window.location.reload();
         })
         .catch(err => {
-          console.error('Error comprobando la sesión:', err);
-          //window.location.href = '/login';
+          console.error(err);
+          alert('No se pudo cerrar sesión. Intenta de nuevo.');
         });
-                document.getElementById('logout-link').addEventListener('click', e => {
-                  e.preventDefault();
-                  fetch('/logout', {
-                    method: 'POST',
-                    credentials: 'same-origin'  // para enviar la cookie de sesión
-                  })
-                  .then(res => {
-                    if (!res.ok) throw new Error('Error cerrando sesión');
-                    // Recarga la página para actualizar la UI
-                    window.location.reload();
-                  })
-                  .catch(err => {
-                    console.error(err);
-                    alert('No se pudo cerrar sesión. Intenta de nuevo.');
-                  });
-                });
-              </script>
-              
-        </div>
-    </header>
+    });
+  </script>
 </body>
 </html>
