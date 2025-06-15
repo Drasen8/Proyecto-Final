@@ -51,6 +51,7 @@
     .nav-bar {
       display: flex;
       gap: var(--spacing-lg);
+      z-index: 1000;
     }
 
     .nav-bar a {

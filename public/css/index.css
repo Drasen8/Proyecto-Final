@@ -235,12 +235,12 @@ flex-direction: row;
     max-height: 400px;
   }
 }
-@media (max-height: 900px) {
+@media (max-height: 600px) {
   .main-content {
     max-height: 300px;
   }
 }
-@media (max-height: 800px) {
+@media (max-height: 500px) {
   .main-content {
     max-height: 200px;
   }

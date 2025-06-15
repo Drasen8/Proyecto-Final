@@ -31,7 +31,7 @@ const session = require('express-session');
 app.set('trust proxy', 1); // Habilitar si estás detrás de un proxy (como Heroku)
 
 app.use(session({
-  secret: 'tu_clave_secreta', // pon una clave más segura en producción
+  secret: 'kajsdgkjgasfkjgakjdfgkjad', // pon una clave más segura en producción
   resave: false,
   saveUninitialized: true,
   cookie: {  maxAge: 1000 * 60 * 60 * 24  } // Usa true si estás en HTTPS
